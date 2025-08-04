@@ -6,3 +6,8 @@ export interface Employee {
     birthDate: string;
     salary: number;
 }
+
+export interface Updater {
+    id: string;
+    fields: Partial<Employee>;
+}
