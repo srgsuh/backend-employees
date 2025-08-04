@@ -3,14 +3,16 @@ import express from 'express'
 import morgan from 'morgan'
 import {errorHandler} from "../middleware/errorHandler.ts";
 import EmployeesServiceMap from "../service/EmployeeServiceMap.ts";
+import EmployeesService from "../service/EmployeeService.ts";
+import {defaultHandler} from "../middleware/defaultHandler.ts";
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
 
-const employeesService = new EmployeesServiceMap();
+const employeesService: EmployeesService = new EmployeesServiceMap();
 
 const app = express();
-//TODO required middleware
+
 app.use(express.json());
 app.use(morgan('tiny'));
 
@@ -35,13 +37,20 @@ app.post("/employees",(req, res) => {
     res.json(employee);
 });
 
-//deleting employee
-app.delete("...",(req, res) => {
-    //TODO
-});
-//Updating employee
-app.patch("...",(req, res) => {
-    //TODO
+app.delete("/employees/:id",(req, res) => {
+    const id = req.params.id;
+    const employee = employeesService.delete(id);
+    res.json(employee);
 });
 
+app.patch("/employees/:id",(req, res) => {
+    const updater = {
+        id: req.params.id,
+        fields: req.body,
+    };
+    const employee = employeesService.update(updater);
+    res.json(employee);
+});
+
+app.use(defaultHandler);
 app.use(errorHandler);
