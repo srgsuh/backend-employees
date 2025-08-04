@@ -14,12 +14,11 @@ const employeesService: EmployeesService = new EmployeesServiceMap();
 const app = express();
 
 app.use(express.json());
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
-
 
 app.get("/employees", (req, res) => {
     const employees = employeesService.getAll();
