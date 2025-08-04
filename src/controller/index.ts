@@ -26,13 +26,15 @@ app.get("/employees", (req, res) => {
 
 app.get("/employees/:id", (req, res) => {
     const id = req.params.id;
-    const employees = employeesService.get(id);
-    res.json(employees);
+    const employee = employeesService.get(id);
+    res.json(employee);
 });
-//Adding new employee
-app.post("...",(req, res) => {
-    //TODO
+
+app.post("/employees",(req, res) => {
+    const employee = employeesService.add(req.body);
+    res.json(employee);
 });
+
 //deleting employee
 app.delete("...",(req, res) => {
     //TODO

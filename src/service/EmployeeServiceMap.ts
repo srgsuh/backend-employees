@@ -3,6 +3,7 @@ import EmployeesService from "./EmployeeService.ts";
 
 export default class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
+    private idCounter: number = 0;
     constructor() {
         this.employees.set("1", {
             id: "1",
@@ -28,6 +29,7 @@ export default class EmployeesServiceMap implements EmployeesService {
             birthDate: "1903-06-25",
             salary: 55000
         });
+        this.idCounter = 4;
     }
 
     getAll(): Employee[] {
@@ -40,5 +42,15 @@ export default class EmployeesServiceMap implements EmployeesService {
         }
         return this.employees.get(id)!;
     }
-//TODO
+
+    add(employee: Employee): Employee {
+        const id = this._generateId();
+        employee.id = id;
+        this.employees.set(id, employee);
+        return employee;
+    }
+
+    _generateId(): string {
+        return `${this.idCounter++}`;
+    }
 }
