@@ -8,24 +8,24 @@ export class EmployeeController {
         res.json(this.service.getAll());
     }
 
-    get = (req: Request, res: Response, next: NextFunction) => {
+    getEmployee = (req: Request, res: Response, next: NextFunction) => {
         const id = req.params.id;
-        res.json(this.service.get(id));
+        res.json(this.service.getEmployee(id));
     }
 
-    add = (req: Request, res: Response, next: NextFunction) => {
-        const employee = this.service.add(req.body);
+    addEmployee = (req: Request, res: Response, next: NextFunction) => {
+        const employee = this.service.addEmployee(req.body);
         res.json(employee);
     }
 
-    delete = (req: Request, res: Response, next: NextFunction) => {
+    deleteEmployee = (req: Request, res: Response, next: NextFunction) => {
         const id = req.params.id;
-        res.json(this.service.delete(id));
+        res.json(this.service.deleteEmployee(id));
     }
 
-    update = (req: Request, res: Response, next: NextFunction) => {
+    updateEmployee = (req: Request, res: Response, next: NextFunction) => {
         const id = req.params.id;
         const fields = req.body;
-        res.json(this.service.update({id, fields}));
+        res.json(this.service.updateEmployee({id, fields}));
     }
 }

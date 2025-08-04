@@ -19,10 +19,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.get("/employees", employeeController.getAll);
-app.get("/employees/:id", employeeController.get);
-app.post("/employees", employeeController.add);
-app.delete("/employees/:id", employeeController.delete);
-app.patch("/employees/:id", employeeController.update);
+app.get("/employees/:id", employeeController.getEmployee);
+app.post("/employees", employeeController.addEmployee);
+app.delete("/employees/:id", employeeController.deleteEmployee);
+app.patch("/employees/:id", employeeController.updateEmployee);
 
 app.use(defaultHandler);
 app.use(errorHandler);

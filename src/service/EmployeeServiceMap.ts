@@ -9,24 +9,24 @@ export default class EmployeesServiceMap implements EmployeesService {
         return[...this.employees.values()];
     }
 
-    get(id: string): Employee {
+    getEmployee(id: string): Employee {
         return this._findById(id);
     }
 
-    add(employee: Employee): Employee {
+    addEmployee(employee: Employee): Employee {
         const id = this._generateId();
         employee.id = id;
         this.employees.set(id, employee);
         return employee;
     }
 
-    delete(id: string): Employee {
+    deleteEmployee(id: string): Employee {
         const employee = this._findById(id);
         this.employees.delete(id);
         return employee;
     }
 
-    update({id, fields}: Updater): Employee {
+    updateEmployee({id, fields}: Updater): Employee {
         const employee = this._findById(id);
         const newEmployee: Employee = {...employee, ...fields, id};
         this.employees.set(id, newEmployee);
