@@ -12,8 +12,6 @@ const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
 const morganFormat = process.env.NODE_ENV === "production"? 'tiny': 'dev';
 
-console.log("NODE_ENV=", process.env.NODE_ENV);
-
 const employeesService: EmployeesService = new EmployeesServiceMap();
 const employeeController = new EmployeeController(employeesService);
 
