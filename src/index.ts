@@ -1,6 +1,7 @@
-import 'dotenv/config'
-import express from 'express'
-import morgan from 'morgan'
+import 'dotenv/config';
+import cors from "cors";
+import express from "express";
+import morgan from "morgan";
 import {errorHandler} from "./middleware/errorHandler.ts";
 import EmployeesServiceMap from "./service/EmployeeServiceMap.ts";
 import EmployeesService from "./service/EmployeeService.ts";
@@ -18,6 +19,7 @@ const employeeController = new EmployeeController(employeesService);
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(morgan(morganFormat));
 
