@@ -1,12 +1,12 @@
 import {Employee, Updater} from "../model/Employee.ts";
 import EmployeesService from "./EmployeeService.ts";
+import {v1 as nextId} from "uuid";
 
 export default class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
-    private idCounter: number = 0;
 
     getAll(): Employee[] {
-        return Array.from(this.employees.values());
+        return[...this.employees.values()];
     }
 
     get(id: string): Employee {
@@ -34,13 +34,16 @@ export default class EmployeesServiceMap implements EmployeesService {
     }
 
     _findById(id: string): Employee {
+        if (!id) {
+            throw new RangeError(`Employee id is required`);
+        }
         if (!this.employees.has(id)) {
-            throw new RangeError(`Employee (id=${id}) is not found`);
+            throw new RangeError(`Employee id=${id} not found`);
         }
         return this.employees.get(id)!;
     }
 
     _generateId(): string {
-        return `${++this.idCounter}`;
+        return nextId();
     }
 }
