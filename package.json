@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "/src/controller/index.ts",
+  "main": "/src/index.ts",
   "scripts": {
     "dev": "nodemon"
   },
