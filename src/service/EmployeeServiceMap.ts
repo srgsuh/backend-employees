@@ -5,8 +5,9 @@ import {v1 as nextId} from "uuid";
 export default class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
 
-    getAll(): Employee[] {
-        return[...this.employees.values()];
+    getAll(department?: string): Employee[] {
+        const data = [...this.employees.values()];
+        return this._filter(data, department);
     }
 
     getEmployee(id: string): Employee {
@@ -45,5 +46,10 @@ export default class EmployeesServiceMap implements EmployeesService {
 
     _generateId(): string {
         return nextId();
+    }
+
+    _filter(data: Employee[], department?: string): Employee[] {
+        return department?
+            data.filter(employee => employee.department === department): data;
     }
 }
