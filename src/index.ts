@@ -10,7 +10,8 @@ import {EmployeeController} from "./controller/EmployeeController.ts";
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
-const morganFormat = process.env.NODE_ENV === "production"? 'tiny': 'dev';
+const defaultMorganFormat = process.env.NODE_ENV === "production"? 'tiny': 'dev';
+const morganFormat = process.env.MORGAN_FORMAT ?? defaultMorganFormat
 
 const employeesService: EmployeesService = new EmployeesServiceMap();
 const employeeController = new EmployeeController(employeesService);
