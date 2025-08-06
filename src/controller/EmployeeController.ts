@@ -5,9 +5,7 @@ export class EmployeeController {
     constructor(private service: EmployeesService) {}
 
     getAll = (req: Request, res: Response) => {
-        const query = req.query;
-        const department: string | undefined = query.department as string;
-        res.json(this.service.getAll(department));
+        res.json(this.service.getAll(req.searchObject));
     }
 
     getEmployee = (req: Request, res: Response) => {

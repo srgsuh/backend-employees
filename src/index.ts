@@ -7,6 +7,7 @@ import EmployeesServiceMap from "./service/EmployeeServiceMap.ts";
 import EmployeesService from "./service/EmployeeService.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
+import {parseGetQuery} from "./middleware/parseGetQuery.js";
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
@@ -21,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan(morganFormat));
 
-app.get("/employees", employeeController.getAll);
+app.get("/employees", parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", employeeController.getEmployee);
 app.post("/employees", employeeController.addEmployee);
 app.delete("/employees/:id", employeeController.deleteEmployee);
