@@ -2,6 +2,7 @@ import {Employee, Updater} from "../model/Employee.ts";
 import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError, EmployeeServiceError} from "./EmployeeServiceErrors.ts";
 
 export default class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
@@ -16,10 +17,13 @@ export default class EmployeesServiceMap implements EmployeesService {
     }
 
     addEmployee(employee: Employee): Employee {
-        const id = this._generateId();
-        employee.id = id;
-        this.employees.set(id, employee);
-        return employee;
+        const id = employee?.id ?? this._generateId();
+        if (this.employees.has(id)) {
+            throw new EmployeeAlreadyExistsError(id);
+        }
+        const newEmployee: Employee = {...employee, id};
+        this.employees.set(id, newEmployee);
+        return newEmployee;
     }
 
     deleteEmployee(id: string): Employee {
@@ -37,10 +41,10 @@ export default class EmployeesServiceMap implements EmployeesService {
 
     _findById(id: string): Employee {
         if (!id) {
-            throw new RangeError(`Employee id is required`);
+            throw new EmployeeServiceError(`Employee id is required`);
         }
         if (!this.employees.has(id)) {
-            throw new RangeError(`Employee id=${id} not found`);
+            throw new EmployeeNotFoundError(`Employee id=${id} not found`);
         }
         return this.employees.get(id)!;
     }
