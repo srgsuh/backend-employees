@@ -61,18 +61,11 @@ export default class EmployeesServiceMap implements EmployeesService {
             const departmentLowerCase = department.toLocaleLowerCase();
             filters.push(e => e.department.toLocaleLowerCase() === departmentLowerCase);
         }
-        if (salaryFrom !== undefined) {
-            filters.push(e => e.salary >= salaryFrom);
-        }
-        if (salaryTo !== undefined) {
-            filters.push(e => e.salary <= salaryTo);
-        }
-        if (birthDateFrom) {
-            filters.push(e => e.birthDate >= birthDateFrom!);
-        }
-        if (birthDateTo) {
-            filters.push(e => e.birthDate <= birthDateTo!);
-        }
+
+        (salaryFrom !== undefined) && filters.push(e => e.salary >= salaryFrom);
+        (salaryTo !== undefined) && filters.push(e => e.salary <= salaryTo);
+        birthDateFrom && filters.push(e => e.birthDate >= birthDateFrom);
+        birthDateTo && filters.push(e => e.birthDate <= birthDateTo);
 
         const filter: (e: Employee) => boolean = (e: Employee) =>
             filters.length > 0 ? filters.every(f => f(e)): true;
