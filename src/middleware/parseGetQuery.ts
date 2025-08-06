@@ -2,12 +2,15 @@ import z from "zod";
 import {NextFunction, Request, Response} from "express";
 import _ from "lodash";
 
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+const dateErrorMessages = "Invalid date format. Expected yyyy-mm-dd";
+
 const searchRequestSchema = z.object({
     department: z.string().optional(),
-    salary_gte: z.number().optional(),
-    salary_lte: z.number().optional(),
-    birthDate_gte: z.string().optional(),
-    birthDate_lte: z.string().optional(),
+    salary_gte: z.coerce.number().optional(),
+    salary_lte: z.coerce.number().optional(),
+    birthDate_gte: z.string().regex(dateRegex, { message: dateErrorMessages }).optional(),
+    birthDate_lte: z.string().regex(dateRegex, { message: dateErrorMessages }).optional(),
 });
 
 type SearchRequest = z.infer<typeof searchRequestSchema>;
@@ -24,13 +27,18 @@ export function parseGetQuery(req: Request, res: Response, next: NextFunction) {
                 birthDateFrom: searchRequest.birthDate_gte,
                 birthDateTo: searchRequest.birthDate_lte,
             }
-            const searchObject = _.omitBy(baseObject, _.isNil);
-            if (_.isEmpty(searchObject)) {
-                req.searchObject = searchObject;
-            }
+            req.searchObject = _.omitBy(baseObject, _.isNil);
         }
         next();
     } catch (e) {
-        next(e);
+        const error = (e instanceof z.ZodError)? parseZodError(e): e;
+        next(error);
     }
+}
+
+function parseZodError(e: z.ZodError) {
+    const message = e.issues.map(issue => {
+        return `Error in ${issue.path.join(', ')}. ${issue.message}`;
+    }).join("; ");
+    return new Error(message);
 }
