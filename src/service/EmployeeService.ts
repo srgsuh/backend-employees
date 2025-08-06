@@ -1,4 +1,4 @@
-import {Employee, Updater} from "../model/Employee.ts";
+import {Employee} from "../model/Employee.ts";
 
 export interface SearchObject {
     department?: string;

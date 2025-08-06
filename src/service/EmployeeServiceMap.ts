@@ -1,4 +1,4 @@
-import {Employee, Updater} from "../model/Employee.ts";
+import {Employee} from "../model/Employee.ts";
 import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
