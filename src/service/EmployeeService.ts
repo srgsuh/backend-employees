@@ -13,5 +13,5 @@ export default interface EmployeesService {
     getEmployee(id: string): Employee;
     addEmployee(employee: Employee): Employee;
     deleteEmployee(id: string): Employee;
-    updateEmployee(updater: Updater): Employee;
+    updateEmployee(fields: Partial<Employee>): Employee;
 }

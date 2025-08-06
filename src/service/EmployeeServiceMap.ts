@@ -32,14 +32,13 @@ export default class EmployeesServiceMap implements EmployeesService {
         return employee;
     }
 
-    updateEmployee({id, fields}: Updater): Employee {
-        const employee = this._findById(id);
-        const newEmployee: Employee = {...employee, ...fields, id};
-        this.employees.set(id, newEmployee);
-        return newEmployee;
+    updateEmployee(fields: Partial<Employee>): Employee {
+        const employee = this._findById(fields.id);
+        Object.assign(employee, fields);
+        return employee;
     }
 
-    _findById(id: string): Employee {
+    _findById(id: string | undefined): Employee {
         if (!id) {
             throw new EmployeeServiceError(`Employee id is required`);
         }
