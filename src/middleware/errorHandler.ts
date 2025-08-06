@@ -1,8 +1,14 @@
 import {Request, Response, NextFunction} from "express";
-import {EmployeeServiceError} from "../service/EmployeeServiceErrors.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../service/EmployeeServiceErrors.ts";
 
 export function errorHandler(error: Error, _req: Request, res: Response, _next: NextFunction) {
-    const status = (error instanceof EmployeeServiceError)? 404 : 400;
+    let status = 400;
+    if (error instanceof EmployeeAlreadyExistsError) {
+        status = 409;
+    }
+    else if (error instanceof EmployeeNotFoundError) {
+        status = 404;
+    }
     const message = error.message;
     res.status(status).json({error: message});
 }
