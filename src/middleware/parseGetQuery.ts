@@ -6,10 +6,12 @@ import {searchRequestSchema} from "../schemas/get-query-parameters.schema.ts";
 
 
 export function parseGetQuery(req: Request, res: Response, next: NextFunction) {
+    console.log("PARSE GET QUERY");
     try {
         const query = req.query;
         if (query && !_.isEmpty(query)) {
             req.searchObject = searchRequestSchema.parse(query);
+            console.log("PARSE GET QUERY", JSON.stringify(req.searchObject));
         }
         next();
     } catch (e) {

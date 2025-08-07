@@ -33,7 +33,11 @@ app.patch("/employees/:id", employeeController.updateEmployee);
 app.use(defaultHandler);
 app.use(errorHandler);
 
-const server = app.listen(port, () => {
+const server = app.listen(port, (error) => {
+    if (error) {
+        console.error(error);
+        return;
+    }
     console.log(`Server started on port ${port}`);
 });
 

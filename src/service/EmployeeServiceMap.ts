@@ -55,20 +55,20 @@ class EmployeesServiceMap implements EmployeesService {
         if (!options || _.isEmpty(options)) {
             return data;
         }
-
+        console.log("FILTER", JSON.stringify(options, null, 2));
         const filters: ((e: Employee) => boolean)[] = [];
 
-        const {department, salaryFrom, salaryTo, birthDateFrom, birthDateTo} = options;
+        const {department, salary_gte, salary_lte, birthDate_gte, birthDate_lte} = options;
         if (department) {
-            const departmentLowerCase = department.toLocaleLowerCase();
-            filters.push(e => e.department.toLocaleLowerCase() === departmentLowerCase);
+            const departmentLowerCase = department.toLowerCase();
+            filters.push(e => e.department.toLowerCase() === departmentLowerCase);
         }
 
-        salaryFrom !== undefined && filters.push(e => e.salary >= salaryFrom);
-        salaryTo !== undefined && filters.push(e => e.salary <= salaryTo);
-        birthDateFrom && filters.push(e => e.birthDate >= birthDateFrom);
-        birthDateTo && filters.push(e => e.birthDate <= birthDateTo);
-
+        salary_gte !== undefined && filters.push(e => e.salary >= salary_gte);
+        salary_lte !== undefined && filters.push(e => e.salary <= salary_lte);
+        birthDate_gte && filters.push(e => e.birthDate >= birthDate_gte);
+        birthDate_lte && filters.push(e => e.birthDate <= birthDate_lte);
+        console.log("FILTER", filters.length, JSON.stringify(filters));
         const filter = (e: Employee) => filters.every(f => f(e));
 
         return data.filter(filter);
