@@ -26,6 +26,6 @@ export class EmployeeController {
     updateEmployee = (req: Request, res: Response) => {
         const id = req.params.id;
         const fields = req.body;
-        res.json(this.service.updateEmployee({...fields, id}));
+        res.json(this.service.updateEmployee(id, fields));
     }
 }

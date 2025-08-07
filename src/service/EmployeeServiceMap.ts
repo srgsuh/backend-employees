@@ -2,9 +2,9 @@ import {Employee} from "../model/Employee.ts";
 import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
-import {EmployeeAlreadyExistsError, EmployeeNotFoundError, EmployeeServiceError} from "./EmployeeServiceErrors.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "./EmployeeServiceErrors.ts";
 
-export default class EmployeesServiceMap implements EmployeesService {
+class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
 
     getAll(options?: SearchObject): Employee[] {
@@ -26,26 +26,19 @@ export default class EmployeesServiceMap implements EmployeesService {
         return newEmployee;
     }
 
-    addAll(employees: Employee[]): void {
-        employees.forEach(e => this.addEmployee(e));
-    }
-
     deleteEmployee(id: string): Employee {
         const employee = this._findById(id);
         this.employees.delete(id);
         return employee;
     }
 
-    updateEmployee(fields: Partial<Employee>): Employee {
-        const employee = this._findById(fields.id);
+    updateEmployee(id: string, fields: Partial<Employee>): Employee {
+        const employee = this._findById(id);
         Object.assign(employee, fields);
         return employee;
     }
 
-    _findById(id: string | undefined): Employee {
-        if (!id) {
-            throw new EmployeeServiceError(`Employee id is required`);
-        }
+    _findById(id: string): Employee {
         if (!this.employees.has(id)) {
             throw new EmployeeNotFoundError(`Employee id=${id} not found`);
         }
@@ -69,14 +62,15 @@ export default class EmployeesServiceMap implements EmployeesService {
             filters.push(e => e.department.toLocaleLowerCase() === departmentLowerCase);
         }
 
-        (salaryFrom !== undefined) && filters.push(e => e.salary >= salaryFrom);
-        (salaryTo !== undefined) && filters.push(e => e.salary <= salaryTo);
+        salaryFrom !== undefined && filters.push(e => e.salary >= salaryFrom);
+        salaryTo !== undefined && filters.push(e => e.salary <= salaryTo);
         birthDateFrom && filters.push(e => e.birthDate >= birthDateFrom);
         birthDateTo && filters.push(e => e.birthDate <= birthDateTo);
 
-        const filter: (e: Employee) => boolean = (e: Employee) =>
-            filters.length > 0 ? filters.every(f => f(e)): true;
+        const filter = (e: Employee) => filters.every(f => f(e));
 
         return data.filter(filter);
     }
 }
+
+export default new EmployeesServiceMap();
