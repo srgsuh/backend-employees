@@ -14,5 +14,8 @@ export const employeesFullSchema = z.object({
 
 export const employeeCreateSchema = employeesFullSchema.partial({id: true});
 
+export const employeeArraySchema = z.array(employeesFullSchema);
+
 export type EmployeeFull = z.infer<typeof employeesFullSchema>;
 export type EmployeeCreate = z.infer<typeof employeeCreateSchema>;
+export type EmployeeArray = z.infer<typeof employeeArraySchema>;
