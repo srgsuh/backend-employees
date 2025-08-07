@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
@@ -6,7 +7,7 @@ import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
 import {parseGetQuery} from "./middleware/parseGetQuery.ts";
 import service from "./service/EmployeeServiceMap.ts";
-import loader from "./service/EmployeeLoader.ts";
+import {saveData} from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
 
 const DEFAULT_PORT = 3000;
@@ -15,11 +16,7 @@ const defaultMorganFormat = process.env.NODE_ENV === "production"? 'tiny': 'dev'
 const morganFormat = process.env.MORGAN_FORMAT ?? defaultMorganFormat
 
 const employeeController = new EmployeeController(service);
-loader.loadData({
-    path: process.env.DB_FILE_PATH,
-    ignoreMissingFile: process.env.IGNORE_MISSING_FILE === "true",
-    ignoreServiceErrors: process.env.IGNORE_SERVICE_ERRORS === "true",
-});
+
 
 const app = express();
 
@@ -45,5 +42,5 @@ process.on("SIGTERM", shutdown);
 
 function shutdown() {
     server.close(() => console.log("Server closed"));
-    loader.saveData(process.env.DB_FILE_PATH);
+    saveData(service, process.env.DB_FILE_PATH);
 }

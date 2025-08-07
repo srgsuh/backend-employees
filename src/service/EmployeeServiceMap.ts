@@ -3,6 +3,8 @@ import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "./EmployeeServiceErrors.ts";
+import {loadData} from "./EmployeeLoader.ts";
+import {employeeArraySchema} from "../schemas/employees.schema.ts";
 
 class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
@@ -72,5 +74,12 @@ class EmployeesServiceMap implements EmployeesService {
         return data.filter(filter);
     }
 }
+const employeeServiceMap = new EmployeesServiceMap();
 
-export default new EmployeesServiceMap();
+loadData(employeeServiceMap, employeeArraySchema, {
+        path: process.env.DB_FILE_PATH,
+        ignoreMissingFile: process.env.IGNORE_MISSING_FILE === "true",
+        ignoreServiceErrors: process.env.IGNORE_SERVICE_ERRORS === "true",
+});
+
+export default employeeServiceMap;

@@ -1,11 +1,9 @@
 import EmployeesService from "./EmployeeService.ts";
-import { employeeArraySchema, EmployeeArraySchemaType, EmployeeFull } from "../schemas/employees.schema.ts";
 import {readFileSync, writeFileSync} from "node:fs";
-import {writeFile} from "node:fs/promises";
-import employeeServiceMap from "./EmployeeServiceMap.ts";
-import z from "zod";
+import z, {ZodType} from "zod";
 import {validationError} from "../utils/zod-utils.ts";
 import {EmployeeServiceError} from "./EmployeeServiceErrors.ts";
+import {Employee} from "../model/Employee.js";
 
 export interface LoaderOptions {
     path?: string,
@@ -13,65 +11,47 @@ export interface LoaderOptions {
     ignoreServiceErrors?: boolean,
 }
 
-class EmployeeLoader {
-    constructor(
-        private service: EmployeesService,
-        private schema: EmployeeArraySchemaType
-    ) {}
-
-    loadData(
-        {path = "", ignoreMissingFile = true, ignoreServiceErrors = true}: LoaderOptions
-    ): void {
-        if (!path) {
+export function loadData(
+    service: EmployeesService,
+    schema: ZodType<Employee[], any>,
+    {path = "", ignoreMissingFile = true, ignoreServiceErrors = true}: LoaderOptions
+){
+    if (!path) {
+        return;
+    }
+    try {
+        const rawData = readFileSync(path, {flag: "r"});
+        const parsed = schema.parse(JSON.parse(rawData.toString()));
+        parsed.forEach(e => addEmployee(service, e, ignoreServiceErrors));
+    }
+    catch (e) {
+        if (ignoreMissingFile && e instanceof Error && e.name === "ENOENT") {
+            console.error(`File ${path} does not exist`);
             return;
         }
-        try {
-            const rawData = readFileSync(path, {flag: "r"});
-            const parsed = this.schema.parse(JSON.parse(rawData.toString()));
-            parsed.forEach(e => this._addEmployee(e, ignoreServiceErrors));
+        if (e instanceof z.ZodError) {
+            throw validationError(e);
         }
-        catch (e) {
-            if (ignoreMissingFile && e instanceof Error && e.name === "ENOENT") {
-                console.error(`File ${path} does not exist`);
-                return;
-            }
-            if (e instanceof z.ZodError) {
-                throw validationError(e);
-            }
-            throw e;
-        }
-    }
-
-    async saveDataAsync(path: string = ""): Promise<void> {
-        if (path) {
-            const employees = this.service.getAll();
-            const writeData = JSON.stringify(employees, null, 2);
-            await writeFile(path, writeData, {encoding: "utf-8", flag: "w"});
-        }
-    }
-
-    saveData(path: string = "") {
-        if (!path) {
-            return;
-        }
-        const employees = this.service.getAll();
-        const writeData = JSON.stringify(employees, null, 2);
-        writeFileSync(path, writeData, {encoding: "utf-8", flag: "w"});
-    }
-
-    private _addEmployee(e: EmployeeFull, ignoreErrors: boolean) {
-        try {
-            this.service.addEmployee(e);
-        }
-        catch (e) {
-            if (ignoreErrors && e instanceof EmployeeServiceError) {
-                console.error(e.message);
-                return;
-            }
-            throw e;
-        }
+        throw e;
     }
 }
 
-const employeeLoader = new EmployeeLoader(employeeServiceMap, employeeArraySchema);
-export default employeeLoader;
+export function saveData(service: EmployeesService, path: string = "") {
+    if (path) {
+        const writeData = JSON.stringify(service.getAll(), null, 2);
+        writeFileSync(path, writeData, {encoding: "utf-8", flag: "w"});
+    }
+}
+
+function addEmployee(service: EmployeesService, e: Employee, ignoreErrors: boolean) {
+    try {
+        service.addEmployee(e);
+    }
+    catch (e) {
+        if (ignoreErrors && e instanceof EmployeeServiceError) {
+            console.error(e.message);
+            return;
+        }
+        throw e;
+    }
+}
