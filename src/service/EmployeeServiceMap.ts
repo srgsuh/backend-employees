@@ -26,6 +26,10 @@ export default class EmployeesServiceMap implements EmployeesService {
         return newEmployee;
     }
 
+    addAll(employees: Employee[]): void {
+        employees.forEach(e => this.addEmployee(e));
+    }
+
     deleteEmployee(id: string): Employee {
         const employee = this._findById(id);
         this.employees.delete(id);

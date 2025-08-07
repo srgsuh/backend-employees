@@ -9,9 +9,10 @@ export interface SearchObject {
 }
 
 export default interface EmployeesService {
-    getAll(options?: SearchObject): Employee[];
     getEmployee(id: string): Employee;
+    getAll(options?: SearchObject): Employee[];
     addEmployee(employee: Employee): Employee;
+    addAll(employees: Employee[]): void;
     deleteEmployee(id: string): Employee;
     updateEmployee(fields: Partial<Employee>): Employee;
 }
