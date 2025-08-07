@@ -32,6 +32,10 @@ app.patch("/employees/:id", employeeController.updateEmployee);
 app.use(defaultHandler);
 app.use(errorHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+
+function shutdown() {
+    server.close(() => console.log("Server closed"));
+}
