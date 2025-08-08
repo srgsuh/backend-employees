@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const employeesFullSchema = z.object({
+export const employeeFullSchema = z.object({
     id: z.guid(),
     salary: z.coerce.number().int().positive(),
     fullName: z.string().max(255),
@@ -11,12 +11,9 @@ export const employeesFullSchema = z.object({
         z.literal(""),
     ]),
 });
+export const employeeFullArraySchema = z.array(employeeFullSchema);
 
-export const employeeCreateSchema = employeesFullSchema.partial({id: true});
+export const employeePartialSchema = employeeFullSchema.partial();
 
-export const employeeArraySchema = z.array(employeesFullSchema);
-export type EmployeeArraySchemaType = typeof employeeArraySchema;
+export const employeeStandardSchema = employeeFullSchema.partial({id: true});
 
-export type EmployeeFull = z.infer<typeof employeesFullSchema>;
-export type EmployeeCreate = z.infer<typeof employeeCreateSchema>;
-export type EmployeeArray = z.infer<typeof employeeArraySchema>;

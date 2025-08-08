@@ -7,14 +7,14 @@ import {Employee} from "../model/Employee.js";
 
 export interface LoaderOptions {
     path?: string,
-    ignoreMissingFile?: boolean,
-    ignoreServiceErrors?: boolean,
+    throwOnNoFile?: boolean,
+    throwOnEmployeeError?: boolean,
 }
 
 export function loadData(
     service: EmployeesService,
     schema: ZodType<Employee[], any>,
-    {path = "", ignoreMissingFile = true, ignoreServiceErrors = true}: LoaderOptions
+    {path = "", throwOnNoFile = false, throwOnEmployeeError = false}: LoaderOptions
 ){
     if (!path) {
         return;
@@ -22,10 +22,11 @@ export function loadData(
     try {
         const rawData = readFileSync(path, {flag: "r"});
         const parsed = schema.parse(JSON.parse(rawData.toString()));
-        parsed.forEach(e => addEmployee(service, e, ignoreServiceErrors));
+        parsed.forEach(e => _addEmployee(service, e, !throwOnEmployeeError));
     }
     catch (e) {
-        if (ignoreMissingFile && e instanceof Error && e.name === "ENOENT") {
+        const error: NodeJS.ErrnoException = e as NodeJS.ErrnoException;
+        if (!throwOnNoFile && error.code === "ENOENT") {
             console.error(`File ${path} does not exist`);
             return;
         }
@@ -43,12 +44,12 @@ export function saveData(service: EmployeesService, path: string = "") {
     }
 }
 
-function addEmployee(service: EmployeesService, e: Employee, ignoreErrors: boolean) {
+function _addEmployee(service: EmployeesService, e: Employee, ignoreError: boolean) {
     try {
         service.addEmployee(e);
     }
     catch (e) {
-        if (ignoreErrors && e instanceof EmployeeServiceError) {
+        if (ignoreError && e instanceof EmployeeServiceError) {
             console.error(e.message);
             return;
         }

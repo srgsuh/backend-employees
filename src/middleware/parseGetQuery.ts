@@ -5,7 +5,7 @@ import {parseZodError} from "../utils/zod-utils.ts";
 import {searchRequestSchema} from "../schemas/get-query-parameters.schema.ts";
 
 
-export function parseGetQuery(req: Request, res: Response, next: NextFunction) {
+export function parseGetQuery(req: Request, __: Response, next: NextFunction) {
     console.log("PARSE GET QUERY");
     try {
         const query = req.query;

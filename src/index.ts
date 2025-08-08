@@ -26,8 +26,8 @@ app.use(morgan(morganFormat));
 
 app.get("/employees", parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", employeeController.getEmployee);
-app.post("/employees", employeeController.addEmployee);
 app.delete("/employees/:id", employeeController.deleteEmployee);
+app.post("/employees", employeeController.addEmployee);
 app.patch("/employees/:id", employeeController.updateEmployee);
 
 app.use(defaultHandler);
