@@ -4,7 +4,7 @@ import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "./EmployeeServiceErrors.ts";
 import {loadData} from "./EmployeeLoader.ts";
-import {employeeSchemaLoadDB} from "../schemas/employees.schema.ts";
+import {employeeSchemaFull} from "../schemas/employees.schema.ts";
 
 class EmployeesServiceMap implements EmployeesService {
     private employees: Map<string, Employee> = new Map();
@@ -55,7 +55,6 @@ class EmployeesServiceMap implements EmployeesService {
         if (!options || _.isEmpty(options)) {
             return data;
         }
-        console.log("FILTER", JSON.stringify(options, null, 2));
         const filters: ((e: Employee) => boolean)[] = [];
 
         const {department, salary_gte, salary_lte, birthDate_gte, birthDate_lte} = options;
@@ -68,7 +67,7 @@ class EmployeesServiceMap implements EmployeesService {
         salary_lte !== undefined && filters.push(e => e.salary <= salary_lte);
         birthDate_gte && filters.push(e => e.birthDate >= birthDate_gte);
         birthDate_lte && filters.push(e => e.birthDate <= birthDate_lte);
-        console.log("FILTER", filters.length, JSON.stringify(filters));
+
         const filter = (e: Employee) => filters.every(f => f(e));
 
         return data.filter(filter);
@@ -76,7 +75,7 @@ class EmployeesServiceMap implements EmployeesService {
 }
 const employeeServiceMap = new EmployeesServiceMap();
 
-loadData(employeeServiceMap, employeeSchemaLoadDB, {
+loadData(employeeServiceMap, employeeSchemaFull, {
         path: process.env.DB_FILE_PATH,
         throwOnNoFile: process.env.IGNORE_MISSING_FILE === "true",
         throwOnEmployeeError: process.env.IGNORE_SERVICE_ERRORS === "true",

@@ -2,7 +2,6 @@ import EmployeesService from "./EmployeeService.ts";
 import {readFileSync, writeFileSync} from "node:fs";
 import z, {ZodType} from "zod";
 import {validationError} from "../utils/zod-utils.ts";
-import {EmployeeServiceError} from "./EmployeeServiceErrors.ts";
 import {Employee} from "../model/Employee.js";
 import {ValidationError} from "../model/Errors.js";
 
