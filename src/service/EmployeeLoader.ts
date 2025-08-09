@@ -43,7 +43,7 @@ export function saveData(service: EmployeesService, path: string = "") {
 
 function _checkIsArray(parsedData: unknown) {
     if (!Array.isArray(parsedData)) {
-        throw new ValidationError("Data in DB file is not an array");
+        throw new ValidationError("Cannot load DB file - content must represent an array of employees");
     }
 }
 
