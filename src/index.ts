@@ -10,7 +10,7 @@ import service from "./service/EmployeeServiceMap.ts";
 import {saveData} from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
 import validateBody from "./middleware/validateBody.js";
-import {employeeSchemaPartial, employeeSchemaStandard} from "./schemas/employees.schema.js";
+import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.js";
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
@@ -29,8 +29,8 @@ app.use(morgan(morganFormat));
 app.get("/employees", parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", employeeController.getEmployee);
 app.delete("/employees/:id", employeeController.deleteEmployee);
-app.post("/employees", validateBody(employeeSchemaStandard), employeeController.addEmployee);
-app.patch("/employees/:id", validateBody(employeeSchemaPartial), employeeController.updateEmployee);
+app.post("/employees", validateBody(employeeSchemaAdd), employeeController.addEmployee);
+app.patch("/employees/:id", validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
 
 app.use(defaultHandler);
 app.use(errorHandler);

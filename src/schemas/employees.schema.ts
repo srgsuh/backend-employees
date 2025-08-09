@@ -9,13 +9,26 @@ export const LIMITS = {
     departments: ["IT", "QA", "Sales", "HR", "Finance"]
 };
 
-export const employeeSchemaFull = z.strictObject({
+export const employeeSchemaLoad = z.strictObject({
     id: z.guid(),
-    salary: z.coerce.number().int().min(LIMITS.minSalary).max(LIMITS.maxSalary),
     fullName: z.string().min(4).max(255),
     department: z.union(LIMITS.departments.map(d => literal(d)), {
         error: "Invalid department. Expected one of: " + LIMITS.departments.join(",")
     }),
+    avatar: z.union([
+        z.url({protocol: /^https?$/,hostname: z.regexes.domain}),
+        z.literal(""),
+    ]),
+    salary: z.coerce.number().int().positive(),
+    birthDate: z.iso.date({abort: true})
+        .refine(
+            d => getAgeFromDate(d) >= LIMITS.minAge
+            , {message: `Age must not be less then ${LIMITS.minAge}`}
+        ),
+})
+
+export const employeeSchemaAdd = employeeSchemaLoad.extend({
+    salary: z.coerce.number().int().min(LIMITS.minSalary).max(LIMITS.maxSalary),
     birthDate: z.iso.date({abort: true})
         .refine(
             d => getAgeFromDate(d) >= LIMITS.minAge
@@ -25,13 +38,7 @@ export const employeeSchemaFull = z.strictObject({
             d => getAgeFromDate(d) <= LIMITS.maxAge
             , {message: `Age must not be greater then ${LIMITS.maxAge}`}
         ),
-    avatar: z.union([
-        z.url({protocol: /^https?$/,hostname: z.regexes.domain}),
-        z.literal(""),
-    ]),
-});
+}).partial({id: true});
 
-export const employeeSchemaStandard = employeeSchemaFull.partial({id: true});
-
-export const employeeSchemaPartial = employeeSchemaStandard.partial();
+export const employeeSchemaUpdate = employeeSchemaAdd.partial();
 
