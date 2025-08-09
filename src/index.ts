@@ -7,7 +7,7 @@ import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
 import {parseGetQuery} from "./middleware/parseGetQuery.ts";
 import service from "./service/EmployeeServiceMap.ts";
-import {saveData} from "./service/EmployeeLoader.ts";
+import loader from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
 import validateBody from "./middleware/validateBody.js";
 import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.js";
@@ -44,5 +44,5 @@ process.on("SIGTERM", shutdown);
 
 function shutdown() {
     server.close(() => console.log("Server closed"));
-    saveData(service, process.env.DB_FILE_PATH);
+    loader.save(service);
 }
