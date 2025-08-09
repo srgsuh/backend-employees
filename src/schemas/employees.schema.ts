@@ -26,11 +26,9 @@ function createEmployeeSchema({minAge, maxAge, minSalary, maxSalary, departments
     });
 }
 
-export const employeeSchemaFull = createEmployeeSchema(BASE_LIMITS);
+export const employeeSchemaLoadDB = createEmployeeSchema({...BASE_LIMITS, maxAge: 0});
 
-export const employeeSchemaFullArray = z.array(employeeSchemaFull);
+export const employeeSchemaStandard = createEmployeeSchema(BASE_LIMITS).partial({id: true});
 
-export const employeeSchemaPartial = employeeSchemaFull.partial();
-
-export const employeeSchemaStandard = employeeSchemaFull.partial({id: true});
+export const employeeSchemaPartial = employeeSchemaStandard.partial();
 
