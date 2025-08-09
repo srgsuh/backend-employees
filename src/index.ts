@@ -10,7 +10,7 @@ import service from "./service/EmployeeServiceMap.ts";
 import {saveData} from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
 import validateBody from "./middleware/validateBody.js";
-import {employeePartialSchema, employeeStandardSchema} from "./schemas/employees.schema.js";
+import {employeeSchemaPartial, employeeSchemaStandard} from "./schemas/employees.schema.js";
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
@@ -29,18 +29,14 @@ app.use(morgan(morganFormat));
 app.get("/employees", parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", employeeController.getEmployee);
 app.delete("/employees/:id", employeeController.deleteEmployee);
-app.post("/employees", validateBody(employeeStandardSchema), employeeController.addEmployee);
-app.patch("/employees/:id", validateBody(employeePartialSchema), employeeController.updateEmployee);
+app.post("/employees", validateBody(employeeSchemaStandard), employeeController.addEmployee);
+app.patch("/employees/:id", validateBody(employeeSchemaPartial), employeeController.updateEmployee);
 
 app.use(defaultHandler);
 app.use(errorHandler);
 
 const server = app.listen(port, (error) => {
-    if (error) {
-        console.error(error);
-        return;
-    }
-    console.log(`Server started on port ${port}`);
+    error? console.error(error): console.log(`Server started on port ${port}`);
 });
 
 process.on("SIGINT", shutdown);

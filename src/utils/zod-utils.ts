@@ -7,5 +7,6 @@ export function parseZodError(e: z.ZodError): string {
 }
 
 export function validationError(zError: z.ZodError): Error {
-    return new Error(parseZodError(zError));
+    const message = z.prettifyError(zError);
+    return new Error(message, {cause: zError});
 }
