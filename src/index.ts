@@ -53,6 +53,9 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 function shutdown() {
-    server.close(() => console.log("Server closed"));
-    loader.save(service);
+    server.close(() => {
+        console.log("All connections are closed. Saving DB...");
+        loader.save(service);
+        console.log("DB saved. Server is closed.");
+    });
 }
