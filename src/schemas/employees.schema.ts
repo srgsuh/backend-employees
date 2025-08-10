@@ -9,6 +9,7 @@ export const LIMITS = {
     departments: ["IT", "QA", "Sales", "HR", "Finance"]
 };
 
+// No validation for salary bounds and maxAge on existing employees - historical values might not fit the limits
 export const employeeSchemaLoad = z.strictObject({
     id: z.guid(),
     fullName: z.string().min(4).max(255),
@@ -25,7 +26,7 @@ export const employeeSchemaLoad = z.strictObject({
             d => getAgeFromDate(d) >= LIMITS.minAge
             , {message: `Age must not be less then ${LIMITS.minAge}`}
         ),
-})
+});
 
 export const employeeSchemaAdd = employeeSchemaLoad.extend({
     salary: z.coerce.number().int().min(LIMITS.minSalary).max(LIMITS.maxSalary),
