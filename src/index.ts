@@ -11,11 +11,20 @@ import loader from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
 import validateBody from "./middleware/validateBody.js";
 import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.js";
+import {createWriteStream} from "node:fs";
+import path from "node:path";
 
 const DEFAULT_PORT = 3000;
+const DEFAULT_MORGAN_FORMAT = 'dev';
+const MORGAN_SKIP_THRESHOLD = 400;
+const LOG_DIR = './logs';
+
 const port = process.env.PORT || DEFAULT_PORT;
-const defaultMorganFormat = process.env.NODE_ENV === "production"? 'tiny': 'dev';
-const morganFormat = process.env.MORGAN_FORMAT ?? defaultMorganFormat
+
+const morganFormat = process.env.MORGAN_FORMAT ?? DEFAULT_MORGAN_FORMAT;
+const morganSkip = +(process.env.MORGAN_SKIP ?? MORGAN_SKIP_THRESHOLD);
+const morganFile = process.env.MORGAN_FILE;
+const logDir = process.env.LOG_DIR ?? LOG_DIR;
 
 const employeeController = new EmployeeController(service);
 
@@ -24,7 +33,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan(morganFormat));
+app.use(morgan(morganFormat, {skip: (__, res) => res.statusCode < morganSkip}));
+morganFile && app.use(morgan('combined', {stream: createWriteStream(path.join(logDir, morganFile), {flags: 'a'})}));
 
 app.get("/employees", parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", employeeController.getEmployee);
