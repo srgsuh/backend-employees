@@ -13,6 +13,7 @@ import validateBody from "./middleware/validateBody.js";
 import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.js";
 import {createWriteStream} from "node:fs";
 import path from "node:path";
+import accountingService from "./service/AccountingServiceMap.ts";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
@@ -41,6 +42,12 @@ app.get("/employees/:id", employeeController.getEmployee);
 app.delete("/employees/:id", employeeController.deleteEmployee);
 app.post("/employees", validateBody(employeeSchemaAdd), employeeController.addEmployee);
 app.patch("/employees/:id", validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
+
+app.post("/login", (req, res) => {
+    const token = accountingService.login(req.body);
+    res.json({token});
+    }
+);
 
 app.use(defaultHandler);
 app.use(errorHandler);
