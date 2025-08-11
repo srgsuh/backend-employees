@@ -1,13 +1,6 @@
 import z, {literal} from 'zod';
 import {getAgeFromDate} from "../utils/date-utils.ts";
-
-export const LIMITS = {
-    minSalary: 10_000,
-    maxSalary: 100_000,
-    minAge: 18,
-    maxAge: 81,
-    departments: ["IT", "QA", "Sales", "HR", "Finance"]
-};
+import LIMITS from "../model/default-values.ts";
 
 // No validation for salary bounds and maxAge on existing employees - historical values might not fit the limits
 export const employeeSchemaLoad = z.strictObject({
