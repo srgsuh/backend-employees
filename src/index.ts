@@ -7,27 +7,27 @@ import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
 import {parseGetQuery} from "./middleware/parseGetQuery.ts";
 import service from "./service/EmployeeServiceMap.ts";
-import loader from "./service/EmployeeLoader.ts";
 import {EmployeeController} from "./controller/EmployeeController.ts";
-import validateBody from "./middleware/validateBody.js";
-import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.js";
+import validateBody from "./middleware/validateBody.ts";
+import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.ts";
 import {createWriteStream} from "node:fs";
 import path from "node:path";
 import accountingService from "./service/AccountingServiceMap.ts";
 import {authorize} from "./middleware/auth/authorize.ts";
 import {authenticate} from "./middleware/auth/authenticate.ts";
+import {isPersistable} from "./service/Persistable.ts";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
-const MORGAN_SKIP_THRESHOLD = 400;
-const LOG_DIR = './logs';
+const DEFAULT_MORGAN_SKIP_THRESHOLD = 400;
+const DEFAULT_LOG_DIR = './logs';
 
 const port = process.env.PORT || DEFAULT_PORT;
 
 const morganFormat = process.env.MORGAN_FORMAT ?? DEFAULT_MORGAN_FORMAT;
-const morganSkip = +(process.env.MORGAN_SKIP ?? MORGAN_SKIP_THRESHOLD);
+const morganSkip = +(process.env.MORGAN_SKIP ?? DEFAULT_MORGAN_SKIP_THRESHOLD);
 const morganFile = process.env.MORGAN_FILE;
-const logDir = process.env.LOG_DIR ?? LOG_DIR;
+const logDir = process.env.LOG_DIR ?? DEFAULT_LOG_DIR;
 
 const employeeController = new EmployeeController(service);
 
@@ -66,8 +66,10 @@ process.on("SIGTERM", shutdown);
 
 function shutdown() {
     server.close(() => {
-        console.log("All connections are closed. Saving DB...");
-        loader.save(service);
-        console.log("DB saved. Server is closed.");
+        console.log("Server closed");
+        if (isPersistable(service)) {
+            service.save();
+            console.log("DB saved");
+        }
     });
 }

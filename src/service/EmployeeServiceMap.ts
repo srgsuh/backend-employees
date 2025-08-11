@@ -3,10 +3,14 @@ import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import loader from "./EmployeeLoader.ts";
+import {FileStorage} from "./FileStorage.ts";
+import Persistable from "./Persistable.ts";
+import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
 
-class EmployeesServiceMap implements EmployeesService {
+class EmployeesServiceMap implements EmployeesService, Persistable {
     private employees: Map<string, Employee> = new Map();
+
+    constructor(private storage: FileStorage<Employee>) {}
 
     getAll(options?: SearchObject): Employee[] {
         const data = [...this.employees.values()];
@@ -71,9 +75,19 @@ class EmployeesServiceMap implements EmployeesService {
 
         return data.filter(filter);
     }
-}
-const employeeServiceMap = new EmployeesServiceMap();
 
-loader.load(employeeServiceMap);
+    save() {
+        this.storage.save(this.getAll());
+    }
+
+    load() {
+        this.storage.load((e) => this.addEmployee(e));
+    }
+}
+const employeeServiceMap = new EmployeesServiceMap(
+    new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
+);
+
+employeeServiceMap.load();
 
 export default employeeServiceMap;
