@@ -1,6 +1,5 @@
 import {Request, Response, NextFunction} from "express";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../service/EmployeeServiceErrors.ts";
-import {parseZodError} from "../utils/zod-utils.ts";
 import {ZodError, prettifyError} from "zod";
 
 export function errorHandler(error: Error, _req: Request, res: Response, _next: NextFunction) {
