@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import cors from "cors";
-import express from "express";
+import express, {Request, Response} from "express";
 import morgan from "morgan";
 import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
@@ -14,6 +14,8 @@ import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schem
 import {createWriteStream} from "node:fs";
 import path from "node:path";
 import accountingService from "./service/AccountingServiceMap.ts";
+import {authorize} from "./middleware/auth/authorize.ts";
+import {authenticate} from "./middleware/auth/authenticate.ts";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
@@ -37,17 +39,20 @@ app.use(express.json());
 app.use(morgan(morganFormat, {skip: (__, res) => res.statusCode < morganSkip}));
 morganFile && app.use(morgan('combined', {stream: createWriteStream(path.join(logDir, morganFile), {flags: 'a'})}));
 
-app.get("/employees", parseGetQuery, employeeController.getAll);
-app.get("/employees/:id", employeeController.getEmployee);
-app.delete("/employees/:id", employeeController.deleteEmployee);
-app.post("/employees", validateBody(employeeSchemaAdd), employeeController.addEmployee);
-app.patch("/employees/:id", validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
+app.use("/employees", authenticate);
 
-app.post("/login", (req, res) => {
+const [authorizeAdmin, authorizeAll] = [authorize(["ADMIN"]), authorize([ "ADMIN", "USER"])];
+
+app.get("/employees", authorizeAll, parseGetQuery, employeeController.getAll);
+app.get("/employees/:id", authorizeAll, employeeController.getEmployee);
+app.delete("/employees/:id", authorizeAdmin, employeeController.deleteEmployee);
+app.post("/employees", authorizeAdmin, validateBody(employeeSchemaAdd), employeeController.addEmployee);
+app.patch("/employees/:id", authorizeAdmin, validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
+
+app.post("/login", (req: Request, res: Response) => {
     const token = accountingService.login(req.body);
     res.json({token});
-    }
-);
+});
 
 app.use(defaultHandler);
 app.use(errorHandler);

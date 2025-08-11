@@ -2,7 +2,7 @@ import {Employee} from "../model/Employee.ts";
 import EmployeesService, {SearchObject} from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
-import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "./EmployeeServiceErrors.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import loader from "./EmployeeLoader.ts";
 
 class EmployeesServiceMap implements EmployeesService {
