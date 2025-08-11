@@ -8,7 +8,7 @@ export class FileStorage<T>{
                 private readonly encoding: BufferEncoding = "utf-8"
     ) {}
     save(data: T[]): void {
-        if (this.path && data.length > 0) {
+        if (this.path) {
             const writeData = JSON.stringify(data, null, 2);
             writeFileSync(this.path, writeData, {encoding: this.encoding, flag: "w"});
         }
