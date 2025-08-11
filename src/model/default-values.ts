@@ -13,5 +13,4 @@ const EmployeeLimits = {
     maxAge: +(process.env.MAX_AGE ?? DEFAULT_EMPLOYEE_LIMITS.maxAge),
     departments: process.env.DEPARTMENTS?.split(",") ?? DEFAULT_EMPLOYEE_LIMITS.departments,
 }
-console.log("LIMITS:", JSON.stringify(EmployeeLimits, null, 2));
 export default EmployeeLimits;
