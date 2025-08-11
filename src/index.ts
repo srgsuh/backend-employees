@@ -16,6 +16,7 @@ import accountingService from "./service/AccountingServiceMap.ts";
 import {authorize} from "./middleware/auth/authorize.ts";
 import {authenticate} from "./middleware/auth/authenticate.ts";
 import {isPersistable} from "./service/Persistable.ts";
+import {loginSchema} from "./schemas/login.schema.js";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
@@ -49,9 +50,8 @@ app.delete("/employees/:id", authorizeAdmin, employeeController.deleteEmployee);
 app.post("/employees", authorizeAdmin, validateBody(employeeSchemaAdd), employeeController.addEmployee);
 app.patch("/employees/:id", authorizeAdmin, validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
 
-app.post("/login", (req: Request, res: Response) => {
-    const token = accountingService.login(req.body);
-    res.json({token});
+app.post("/login", validateBody(loginSchema), (req: Request, res: Response) => {
+    res.json({token: accountingService.login(req.body)});
 });
 
 app.use(defaultHandler);
