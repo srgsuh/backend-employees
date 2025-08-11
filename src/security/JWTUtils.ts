@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import Account from "../model/Account.ts";
-import {AuthorizationError} from "../model/Errors.ts";
+import {AuthenticationError,} from "../model/Errors.ts";
 
 export default class JWTUtils {
     static getJWT(account: Account): string {
@@ -18,7 +18,7 @@ export default class JWTUtils {
         }
         catch (e) {
             throw (e instanceof jwt.JsonWebTokenError) ?
-                new AuthorizationError(e.message, {cause: e}) : e;
+                new AuthenticationError(e.message, {cause: e}) : e;
         }
     }
 }
