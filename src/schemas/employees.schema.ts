@@ -32,7 +32,7 @@ export const employeeSchemaAdd = employeeSchemaLoad.extend({
             d => getAgeFromDate(d) <= LIMITS.maxAge
             , {message: `Age must not be greater then ${LIMITS.maxAge}`}
         ),
-}).partial({id: true});
-
+    userId: z.string()
+}).strip().partial({id: true});
 export const employeeSchemaUpdate = employeeSchemaAdd.partial();
 
