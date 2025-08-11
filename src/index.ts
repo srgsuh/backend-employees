@@ -42,7 +42,7 @@ morganFile && app.use(morgan('combined', {stream: createWriteStream(path.join(lo
 
 app.use("/employees", authenticate);
 
-const [authorizeAdmin, authorizeAll] = [authorize(["ADMIN"]), authorize([ "ADMIN", "USER"])];
+const [authorizeAdmin, authorizeAll] = [authorize(new Set(["ADMIN"])), authorize(new Set([ "ADMIN", "USER"]))];
 
 app.get("/employees", authorizeAll, parseGetQuery, employeeController.getAll);
 app.get("/employees/:id", authorizeAll, employeeController.getEmployee);
