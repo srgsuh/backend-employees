@@ -1,4 +1,3 @@
-import {EmployeeServiceError} from "../service/EmployeeServiceErrors.js";
 
 export class ValidationError extends Error {
     name = "ValidationError";
@@ -6,22 +5,22 @@ export class ValidationError extends Error {
 
 export class HttpError extends Error {
     name = "HttpError";
-    constructor(message: string, public readonly statusCode: number) {
-        super(message);
+    constructor(message: string, public statusCode: number, options?: ErrorOptions) {
+        super(message, options);
     }
 }
 
 export class AuthenticationError extends HttpError {
     name = "AuthenticationError";
-    constructor(message: string = "Authentication is required to access this resource") {
-        super(message, 401);
+    constructor(message: string = "Authentication is required to access this resource", options?: ErrorOptions) {
+        super(message, 401, options);
     }
 }
 
 export class AuthorizationError extends HttpError {
     name = "AuthorizationError";
-    constructor(message: string = "You do not have permission to access this resource") {
-        super(message, 403);
+    constructor(message: string = "You do not have permission to access this resource", options?: ErrorOptions) {
+        super(message, 403, options);
     }
 }
 
