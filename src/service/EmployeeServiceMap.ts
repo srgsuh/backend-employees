@@ -45,7 +45,7 @@ class EmployeesServiceMap implements EmployeesService, Persistable {
 
     _findById(id: string): Employee {
         if (!this.employees.has(id)) {
-            throw new EmployeeNotFoundError(`Employee id=${id} not found`);
+            throw new EmployeeNotFoundError(id);
         }
         return this.employees.get(id)!;
     }
@@ -82,6 +82,7 @@ class EmployeesServiceMap implements EmployeesService, Persistable {
 
     load() {
         this.storage.load((e) => this.addEmployee(e));
+        console.log(`${this.employees.size} entities loaded from DB file`);
     }
 }
 const employeeServiceMap = new EmployeesServiceMap(

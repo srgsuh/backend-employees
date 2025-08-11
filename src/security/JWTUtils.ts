@@ -1,10 +1,10 @@
-import {JsonWebTokenError, JwtPayload, sign, verify} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import Account from "../model/Account.ts";
-import {AuthorizationError} from "../model/Errors.js";
+import {AuthorizationError} from "../model/Errors.ts";
 
 export default class JWTUtils {
     static getJWT(account: Account): string {
-        return sign({
+        return jwt.sign({
             role: account.role,
         }, process.env.JWT_SECRET!, {
             subject: account.username,
@@ -12,12 +12,12 @@ export default class JWTUtils {
         });
     }
 
-    static verifyJWT(token: string): JwtPayload {
+    static verifyJWT(token: string): jwt.JwtPayload {
         try {
-            return verify(token, process.env.JWT_SECRET!) as JwtPayload;
+            return jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload;
         }
         catch (e) {
-            throw (e instanceof JsonWebTokenError) ?
+            throw (e instanceof jwt.JsonWebTokenError) ?
                 new AuthorizationError(e.message, {cause: e}) : e;
         }
     }
