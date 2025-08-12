@@ -1,5 +1,10 @@
 import z from "zod";
 
+export function getEnvVariable(name: string, defaultValue: string): string {
+    const {success, data} = z.string().min(1).safeParse(process.env[name]);
+    return success? data: defaultValue;
+}
+
 export function getEnvIntVariable(name: string, defaultValue: number): number {
     const {success, data} = z.coerce.number().int().safeParse(process.env[name]);
     return success? data: defaultValue;

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import cors from "cors";
-import express, {Request, Response} from "express";
+import express from "express";
 import morgan from "morgan";
 import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
@@ -18,18 +18,19 @@ import {authenticate} from "./middleware/auth/authenticate.ts";
 import {isPersistable} from "./service/Persistable.ts";
 import {loginSchema} from "./schemas/login.schema.js";
 import {AuthController} from "./controller/AuthController.js";
+import {getEnvIntVariable, getEnvVariable} from "./utils/env-utils.js";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
 const DEFAULT_MORGAN_SKIP_THRESHOLD = 400;
 const DEFAULT_LOG_DIR = './logs';
 
-const port = process.env.PORT || DEFAULT_PORT;
+const port = getEnvIntVariable("PORT", DEFAULT_PORT);
 
-const morganFormat = process.env.MORGAN_FORMAT ?? DEFAULT_MORGAN_FORMAT;
-const morganSkip = +(process.env.MORGAN_SKIP ?? DEFAULT_MORGAN_SKIP_THRESHOLD);
+const morganFormat = getEnvVariable("MORGAN_FORMAT", DEFAULT_MORGAN_FORMAT);
+const morganSkip = getEnvIntVariable("MORGAN_SKIP", DEFAULT_MORGAN_SKIP_THRESHOLD);
 const morganFile = process.env.MORGAN_FILE;
-const logDir = process.env.LOG_DIR ?? DEFAULT_LOG_DIR;
+const logDir = getEnvVariable("LOG_DIR", DEFAULT_LOG_DIR);
 
 const employeeController = new EmployeeController(service);
 const authController = new AuthController(accountingService);
