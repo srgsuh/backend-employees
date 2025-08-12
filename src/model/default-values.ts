@@ -6,6 +6,7 @@ const DEFAULT_EMPLOYEE_LIMITS = {
     departments: ["IT", "QA", "Sales", "HR", "Finance"]
 };
 
+//TODO: implement zod validation for env variables
 const EmployeeLimits = {
     minSalary: +(process.env.MIN_SALARY ?? DEFAULT_EMPLOYEE_LIMITS.minSalary),
     maxSalary: +(process.env.MAX_SALARY ?? DEFAULT_EMPLOYEE_LIMITS.maxSalary),

@@ -17,6 +17,7 @@ import {authorize} from "./middleware/auth/authorize.ts";
 import {authenticate} from "./middleware/auth/authenticate.ts";
 import {isPersistable} from "./service/Persistable.ts";
 import {loginSchema} from "./schemas/login.schema.js";
+import {AuthController} from "./controller/AuthController.js";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
@@ -31,7 +32,7 @@ const morganFile = process.env.MORGAN_FILE;
 const logDir = process.env.LOG_DIR ?? DEFAULT_LOG_DIR;
 
 const employeeController = new EmployeeController(service);
-
+const authController = new AuthController(accountingService);
 
 const app = express();
 
@@ -50,9 +51,7 @@ app.delete("/employees/:id", authorizeAdmin, employeeController.deleteEmployee);
 app.post("/employees", authorizeAdmin, validateBody(employeeSchemaAdd), employeeController.addEmployee);
 app.patch("/employees/:id", authorizeAdmin, validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
 
-app.post("/login", validateBody(loginSchema), (req: Request, res: Response) => {
-    res.json({token: accountingService.login(req.body)});
-});
+app.post("/login", validateBody(loginSchema), authController.login);
 
 app.use(defaultHandler);
 app.use(errorHandler);

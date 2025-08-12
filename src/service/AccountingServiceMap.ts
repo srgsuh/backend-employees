@@ -4,6 +4,7 @@ import Account from "../model/Account.ts";
 import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
 import {AuthenticationError} from "../model/Errors.js";
+import LoginResponse from "../model/LoginResponse.js";
 
 class AccountingServiceMap implements AccountingService{
     private accounts: Map<string, Account> = new Map();
@@ -21,12 +22,18 @@ class AccountingServiceMap implements AccountingService{
         });
     }
 
-    login(loginData: LoginData): string {
+    login(loginData: LoginData): LoginResponse {
         const account = this.accounts.get(loginData.email);
         if (!account || !compareSync(loginData.password, account.password)) {
             throw new AuthenticationError("Wrong credentials");
         }
-        return JWTUtils.getJWT(account);
+        return {
+            accessToken: JWTUtils.getJWT(account),
+            user: {
+                email: account.username,
+                id: account.role
+            }
+        };
     }
 }
 
