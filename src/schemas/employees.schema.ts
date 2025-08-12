@@ -1,13 +1,15 @@
 import z, {literal} from 'zod';
 import {getAgeFromDate} from "../utils/date-utils.ts";
-import LIMITS from "../model/default-values.ts";
+import {EmployeeLimits} from "../model/config-values.ts";
+
+const {minAge, maxAge, minSalary, maxSalary, departments} = EmployeeLimits;
 
 // No validation for salary bounds and maxAge on existing employees - historical values might not fit the limits
 export const employeeSchemaLoad = z.strictObject({
     id: z.guid(),
     fullName: z.string().min(4).max(255),
-    department: z.union(LIMITS.departments.map(d => literal(d)), {
-        error: "Invalid department. Expected one of: " + LIMITS.departments.join(",")
+    department: z.union(departments.map(d => literal(d)), {
+        error: "Invalid department. Expected one of: " + departments.join(",")
     }),
     avatar: z.union([
         z.url({protocol: /^https?$/,hostname: z.regexes.domain}),
@@ -16,21 +18,21 @@ export const employeeSchemaLoad = z.strictObject({
     salary: z.coerce.number().int().positive(),
     birthDate: z.iso.date({abort: true})
         .refine(
-            d => getAgeFromDate(d) >= LIMITS.minAge
-            , {message: `Age must not be less then ${LIMITS.minAge}`}
+            d => getAgeFromDate(d) >= minAge
+            , {message: `Age must not be less then ${minAge}`}
         ),
 });
 
 export const employeeSchemaAdd = employeeSchemaLoad.extend({
-    salary: z.coerce.number().int().min(LIMITS.minSalary).max(LIMITS.maxSalary),
+    salary: z.coerce.number().int().min(minSalary).max(maxSalary),
     birthDate: z.iso.date({abort: true})
         .refine(
-            d => getAgeFromDate(d) >= LIMITS.minAge
-            , {message: `Age must not be less then ${LIMITS.minAge}`}
+            d => getAgeFromDate(d) >= minAge
+            , {message: `Age must not be less then ${minAge}`}
         )
         .refine(
-            d => getAgeFromDate(d) <= LIMITS.maxAge
-            , {message: `Age must not be greater then ${LIMITS.maxAge}`}
+            d => getAgeFromDate(d) <= maxAge
+            , {message: `Age must not be greater then ${maxAge}`}
         ),
     userId: z.string()
 }).strip().partial({id: true});
