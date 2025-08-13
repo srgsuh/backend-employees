@@ -4,8 +4,10 @@ import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import {FileStorage} from "./FileStorage.ts";
-import Persistable from "./Persistable.ts";
+import Persistable, { isPersistable } from "./Persistable.ts";
 import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
+import { EmployeeServiceMock } from "./EmployeeServiceMock.test.ts";
+import EmployeeService from "./EmployeeService.ts";
 
 class EmployeesServiceMap implements EmployeesService, Persistable {
     private employees: Map<string, Employee> = new Map();
@@ -85,10 +87,15 @@ class EmployeesServiceMap implements EmployeesService, Persistable {
         console.log(`${this.employees.size} entities loaded from DB file`);
     }
 }
-const employeeServiceMap = new EmployeesServiceMap(
+
+const service: EmployeeService = process.env.NODE_TEST_CONTEXT?
+    new EmployeeServiceMock(): new EmployeesServiceMap(
     new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
 );
 
-employeeServiceMap.load();
+if (isPersistable(service)) {
+    service.load();
+    console.log("DB loaded");
+}
 
-export default employeeServiceMap;
+export default service;

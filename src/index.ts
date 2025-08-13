@@ -59,3 +59,5 @@ function shutdown() {
         }
     });
 }
+
+export default app;
