@@ -12,7 +12,9 @@ import EmployeeService from "./EmployeeService.ts";
 class EmployeesServiceMap implements EmployeesService, Persistable {
     private employees: Map<string, Employee> = new Map();
 
-    constructor(private storage: FileStorage<Employee>) {}
+    constructor(private storage: FileStorage<Employee>) {
+        this.load();
+    }
 
     getAll(options?: SearchObject): Employee[] {
         const data = [...this.employees.values()];
@@ -92,10 +94,5 @@ const service: EmployeeService = process.env.NODE_TEST_CONTEXT?
     new EmployeeServiceMock(): new EmployeesServiceMap(
     new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
 );
-
-if (isPersistable(service)) {
-    service.load();
-    console.log("DB loaded");
-}
 
 export default service;
