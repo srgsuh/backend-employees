@@ -6,6 +6,7 @@ export class FileStorage<T>{
                 private readonly path?: string,
                 private readonly encoding: BufferEncoding = "utf-8"
     ) {}
+
     save(data: T[]): void {
         if (this.path) {
             const writeData = JSON.stringify(data, null, 2);

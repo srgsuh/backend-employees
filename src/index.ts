@@ -5,20 +5,16 @@ import express from "express";
 import morgan from "morgan";
 import {errorHandler} from "./middleware/errorHandler.ts";
 import {defaultHandler} from "./middleware/defaultHandler.ts";
-import {parseGetQuery} from "./middleware/parseGetQuery.ts";
 import service from "./service/EmployeeServiceMap.ts";
-import {EmployeeController} from "./controller/EmployeeController.ts";
 import validateBody from "./middleware/validateBody.ts";
-import {employeeSchemaUpdate, employeeSchemaAdd} from "./schemas/employees.schema.ts";
 import {createWriteStream} from "node:fs";
 import path from "node:path";
 import accountingService from "./service/AccountingServiceMap.ts";
-import {authorize} from "./middleware/auth/authorize.ts";
-import {authenticate} from "./middleware/auth/authenticate.ts";
 import {isPersistable} from "./service/Persistable.ts";
 import {loginSchema} from "./schemas/login.schema.js";
 import {AuthController} from "./controller/AuthController.js";
 import {getEnvIntVariable, getEnvVariable} from "./utils/env-utils.js";
+import employeeRouter from "./controller/routes/employee-router.ts";
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_MORGAN_FORMAT = 'dev';
@@ -32,26 +28,16 @@ const morganSkip = getEnvIntVariable("MORGAN_SKIP", DEFAULT_MORGAN_SKIP_THRESHOL
 const morganFile = process.env.MORGAN_FILE;
 const logDir = getEnvVariable("LOG_DIR", DEFAULT_LOG_DIR);
 
-const employeeController = new EmployeeController(service);
+
 const authController = new AuthController(accountingService);
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
 app.use(morgan(morganFormat, {skip: (__, res) => res.statusCode < morganSkip}));
 morganFile && app.use(morgan('combined', {stream: createWriteStream(path.join(logDir, morganFile), {flags: 'a'})}));
 
-app.use("/employees", authenticate);
-
-const [authorizeAdmin, authorizeAll] = [authorize(new Set<string>(["ADMIN"])), authorize(new Set<string>([ "ADMIN", "USER"]))];
-
-app.get("/employees", authorizeAll, parseGetQuery, employeeController.getAll);
-app.get("/employees/:id", authorizeAll, employeeController.getEmployee);
-app.delete("/employees/:id", authorizeAdmin, employeeController.deleteEmployee);
-app.post("/employees", authorizeAdmin, validateBody(employeeSchemaAdd), employeeController.addEmployee);
-app.patch("/employees/:id", authorizeAdmin, validateBody(employeeSchemaUpdate), employeeController.updateEmployee);
-
+app.use("/employees", employeeRouter);
 app.post("/login", validateBody(loginSchema), authController.login);
 
 app.use(defaultHandler);
