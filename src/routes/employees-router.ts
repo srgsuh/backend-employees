@@ -2,7 +2,7 @@ import {Router} from "express";
 import {EmployeeController} from "../controller/EmployeeController.ts";
 import {authorize} from "../middleware/auth/authorize.ts";
 import { parseGetQuery } from "../middleware/parseGetQuery.ts";
-import validateBody from "../middleware/validateBody.ts";
+import { validateBody } from "../middleware/validateBody.ts";
 import { employeeSchemaAdd, employeeSchemaUpdate } from "../schemas/employees.schema.ts";
 import { getEmployeeService } from "../service/services.ts";
 

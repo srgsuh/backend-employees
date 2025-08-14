@@ -9,25 +9,17 @@ import { AccountingServiceMap } from "./AccountingServiceMap.ts";
 import Persistable, { isPersistable } from "./Persistable.ts";
 
 export function getEmployeeService(): EmployeeService {
-    let service: EmployeeService | undefined = undefined;
-    if (!service) {
-        if (process.env.NODE_TEST_CONTEXT) {
-            service = new EmployeeServiceMock();
-        } else {
-            service = new EmployeesServiceMap(
-                new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
-            );
-        }
+    if (process.env.NODE_TEST_CONTEXT) {
+        return new EmployeeServiceMock();
+    } else {
+        return new EmployeesServiceMap(
+            new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
+        );
     }
-    return service;
 }
 
 export function getAccountingService(): AccountingService {
-    let service: AccountingService | undefined = undefined;
-    if (!service) {
-        service = new AccountingServiceMap();
-    }
-    return service;
+    return new AccountingServiceMap();
 }
 
 export function getPersistableServices(): Persistable[] {
