@@ -1,22 +1,21 @@
-import {Employee} from "../model/Employee.ts";
-import EmployeesService, {SearchObject} from "./EmployeeService.ts";
+import type {Employee} from "../model/Employee.ts";
+import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
+import type EmployeeService from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import {FileStorage} from "./FileStorage.ts";
-import Persistable, { isPersistable } from "./Persistable.ts";
-import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
-import { EmployeeServiceMock } from "./EmployeeServiceMock.test.ts";
-import EmployeeService from "./EmployeeService.ts";
+import type Persistable from "./Persistable.ts";
+import { isPersistable } from "./Persistable.ts";
 
-class EmployeesServiceMap implements EmployeesService, Persistable {
+export class EmployeesServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();
 
     constructor(private storage: FileStorage<Employee>) {
         this.load();
     }
 
-    getAll(options?: SearchObject): Employee[] {
+    getAll(options?: EmployeeRequestParams): Employee[] {
         const data = [...this.employees.values()];
         return this._filter(data, options);
     }
@@ -58,7 +57,7 @@ class EmployeesServiceMap implements EmployeesService, Persistable {
         return nextId();
     }
 
-    _filter(data: Employee[], options?: SearchObject): Employee[] {
+    _filter(data: Employee[], options?: EmployeeRequestParams): Employee[] {
         if (!options || _.isEmpty(options)) {
             return data;
         }
@@ -89,10 +88,3 @@ class EmployeesServiceMap implements EmployeesService, Persistable {
         console.log(`${this.employees.size} entities loaded from DB file`);
     }
 }
-
-const service: EmployeeService = process.env.NODE_TEST_CONTEXT?
-    new EmployeeServiceMock(): new EmployeesServiceMap(
-    new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
-);
-
-export default service;

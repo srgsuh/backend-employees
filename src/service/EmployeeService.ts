@@ -1,16 +1,9 @@
 import {Employee} from "../model/Employee.ts";
+import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 
-export interface SearchObject {
-    department?: string;
-    salary_gte?: number;
-    salary_lte?: number;
-    birthDate_gte?: string;
-    birthDate_lte?: string;
-}
-
-export default interface EmployeesService {
+export default interface EmployeeService {
     getEmployee(id: string): Employee;
-    getAll(options?: SearchObject): Employee[];
+    getAll(options?: EmployeeRequestParams): Employee[];
     addEmployee(employee: Employee): Employee;
     deleteEmployee(id: string): Employee;
     updateEmployee(id: string, fields: Partial<Employee>): Employee;
