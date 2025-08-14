@@ -5,19 +5,19 @@ import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 
 export class EmployeeServiceMock implements EmployeeService {
     getEmployee(id: string): Employee {
-        return {} as Employee;
+        return {id} as Employee;
     }
     getAll(options?: EmployeeRequestParams): Employee[] {
-        return [] as Employee[];
+        return [];
     }
     addEmployee(employee: Employee): Employee {
-        return {} as Employee;
+        return employee;
     }
     deleteEmployee(id: string): Employee {
         return {} as Employee;
     }
     updateEmployee(id: string, fields: Partial<Employee>): Employee {
-        return {} as Employee;
+        return {id, ...fields} as Employee;
     }
 
 }

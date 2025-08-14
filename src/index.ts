@@ -1,8 +1,7 @@
 import 'dotenv/config';
 import app from './app.ts';
 import { getEnvIntVariable } from './utils/env-utils.ts';
-import service from "./service/EmployeeServiceMap.ts";
-import { isPersistable } from './service/Persistable.ts';
+import { getPersistableServices } from './service/services.ts';
 
 const DEFAULT_PORT = 3000;
 const port = getEnvIntVariable("PORT", DEFAULT_PORT);
@@ -17,9 +16,8 @@ process.on("SIGTERM", shutdown);
 function shutdown() {
     server.close(() => {
         console.log("Server closed");
-        if (isPersistable(service)) {
-            service.save();
-            console.log("DB saved");
-        }
+        getPersistableServices().forEach(
+            (service) => {service.save();}
+        );
     });
 }

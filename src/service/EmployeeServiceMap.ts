@@ -6,7 +6,6 @@ import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import {FileStorage} from "./FileStorage.ts";
 import type Persistable from "./Persistable.ts";
-import { isPersistable } from "./Persistable.ts";
 
 export class EmployeesServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();

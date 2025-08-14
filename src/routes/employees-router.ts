@@ -1,14 +1,16 @@
 import {Router} from "express";
-import service from "../service/EmployeeServiceMap.ts";
 import {EmployeeController} from "../controller/EmployeeController.ts";
 import {authorize} from "../middleware/auth/authorize.ts";
 import { parseGetQuery } from "../middleware/parseGetQuery.ts";
 import validateBody from "../middleware/validateBody.ts";
 import { employeeSchemaAdd, employeeSchemaUpdate } from "../schemas/employees.schema.ts";
+import { getEmployeeService } from "../service/services.ts";
 
-const employeeController = new EmployeeController(service);
+const employeeService = getEmployeeService();
+const employeeController = new EmployeeController(employeeService);
+
 const authorizeAdmin = authorize(new Set<string>(["ADMIN"]));
-const authorizeAll = authorize(new Set<string>([ "ADMIN", "USER"]))
+const authorizeAll = authorize(new Set<string>([ "ADMIN", "USER"]));
 
 const employeeRouter = Router();
 

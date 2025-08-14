@@ -1,8 +1,8 @@
-import EmployeesService from "../service/EmployeeService.ts";
+import EmployeeService from "../service/EmployeeService.ts";
 import {Request, Response} from "express";
 
 export class EmployeeController {
-    constructor(private service: EmployeesService) {}
+    constructor(private service: EmployeeService) {}
 
     getAll = (req: Request, res: Response) => {
         res.json(this.service.getAll(req.searchObject));

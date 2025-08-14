@@ -1,12 +1,12 @@
-import {AccountingService} from "./AccountingService.ts";
-import LoginData from "../model/LoginData.ts";
-import Account from "../model/Account.ts";
+import type LoginData from "../model/LoginData.ts";
+import type Account from "../model/Account.ts";
+import type LoginResponse from "../model/LoginResponse.ts";
+import type AccountingService from "./AccountingService.ts";
+import {AuthenticationError} from "../model/Errors.ts";
 import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
-import {AuthenticationError} from "../model/Errors.js";
-import LoginResponse from "../model/LoginResponse.js";
 
-class AccountingServiceMap implements AccountingService{
+export class AccountingServiceMap implements AccountingService{
     private accounts: Map<string, Account> = new Map();
 
     constructor() {
@@ -36,6 +36,3 @@ class AccountingServiceMap implements AccountingService{
         };
     }
 }
-
-const accountingServiceMap = new AccountingServiceMap();
-export default accountingServiceMap;
