@@ -26,6 +26,8 @@ out/
 
 # Конфигурационные файлы среды
 .env
+.env.test
+.env.development
 .env.local
 .env.*.local
 
