@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-//dotenv.config({ path: ".env.test"});
-
 import app from "../app.ts";
 import request from "supertest";
 import test from "node:test";
