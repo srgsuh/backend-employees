@@ -37,3 +37,10 @@ export class EmployeeNotFoundError extends HttpError {
         super(`Employee with id=${id} not found`, 404);
     }
 }
+
+export class AccountAlreadyExistsError extends HttpError {
+    name = "AccountAlreadyExistsError";
+    constructor(email: string) {
+        super(`Account with email=${email} already exists`, 409);
+    }
+}

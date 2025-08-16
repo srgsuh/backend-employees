@@ -2,24 +2,17 @@ import type LoginData from "../model/LoginData.ts";
 import type Account from "../model/Account.ts";
 import type LoginResponse from "../model/LoginResponse.ts";
 import type AccountingService from "./AccountingService.ts";
-import {AuthenticationError} from "../model/Errors.ts";
+import {AccountAlreadyExistsError, AuthenticationError} from "../model/Errors.ts";
 import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
+import Persistable from "./Persistable.js";
+import {StorageProvider} from "./StorageProvider.js";
 
-export class AccountingServiceMap implements AccountingService{
+export class AccountingServiceMap implements AccountingService, Persistable{
     private accounts: Map<string, Account> = new Map();
 
-    constructor() {
-        this.accounts.set("admin@admin.com", {
-            username: "admin@admin.com",
-            role: "ADMIN",
-            password: "$2y$10$SIrs2kAgLH7sHm3GhiuekeVzpBEjpPGsI4W9jhGsRuCZ3xGc5Y/gm"
-        });
-        this.accounts.set("user@user.com", {
-            username: "user@user.com",
-            role: "USER",
-            password: "$2y$10$cXcZwFOXWWMnvvXLBRkDs.EThDOAQH7N3JMS.AmvcY0LYWSsucEAe"
-        });
+    constructor(private readonly storage: StorageProvider<Account>) {
+        this.load();
     }
 
     login(loginData: LoginData): LoginResponse {
@@ -34,5 +27,24 @@ export class AccountingServiceMap implements AccountingService{
                 id: account.role
             }
         };
+    }
+
+    addAccount(account: Account) {
+        const username = account.username;
+        if (this.accounts.has(username)) {
+            throw new AccountAlreadyExistsError(username);
+        }
+        this.accounts.set(username, account);
+    }
+
+    save() {
+        const accounts = [...this.accounts.values()];
+        this.storage.save(accounts);
+        console.log(`${accounts.length} accounts saved to file`);
+    }
+
+    load() {
+        this.storage.load((a) => this.addAccount(a));
+        console.log(`${this.accounts.size} accounts loaded from DB file`);
     }
 }

@@ -6,11 +6,12 @@ import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import {FileStorage} from "./FileStorage.ts";
 import type Persistable from "./Persistable.ts";
+import {StorageProvider} from "./StorageProvider.js";
 
 export class EmployeesServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();
 
-    constructor(private storage: FileStorage<Employee>) {
+    constructor(private storage: StorageProvider<Employee>) {
         this.load();
     }
 
@@ -80,6 +81,7 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
 
     save() {
         this.storage.save(this.getAll());
+        console.log(`${this.employees.size} entities saved to DB file`);
     }
 
     load() {

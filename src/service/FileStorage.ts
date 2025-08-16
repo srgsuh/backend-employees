@@ -1,7 +1,8 @@
 import {prettifyError, ZodType} from "zod";
 import {readFileSync, writeFileSync} from "node:fs";
+import {StorageProvider} from "./StorageProvider.js";
 
-export class FileStorage<T>{
+export class FileStorage<T> implements StorageProvider<T>{
     constructor(private readonly schema: ZodType<T, any>,
                 private readonly path?: string,
                 private readonly encoding: BufferEncoding = "utf-8"
