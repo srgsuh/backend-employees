@@ -10,6 +10,11 @@ export function getEnvIntVariable(name: string, defaultValue: number): number {
     return success? data: defaultValue;
 }
 
+export function getEnvBoolVariable(name: string, defaultValue: boolean): boolean {
+    const {success, data} = z.coerce.boolean().safeParse(process.env[name]);
+    return success? data: defaultValue;
+}
+
 export function getEnvStrArray(name: string, defaultValue: string[]) {
     const {success, data} = z.array(z.string().min(1)).safeParse(
         process.env[name]?.split(",").map(s => s.trim())
