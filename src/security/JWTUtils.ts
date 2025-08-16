@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import Account from "../model/Account.ts";
 import {AuthenticationError,} from "../model/Errors.ts";
-import {getEnvIntVariable} from "../utils/env-utils.js";
+import {getEnvIntVariable} from "../utils/env-utils.ts";
 
 const {JWT_SECRET} = process.env;
 const JWT_EXPIRES_IN_DEFAULT = 60 * 60 * 1000;

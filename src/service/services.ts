@@ -8,7 +8,7 @@ import type AccountingService from "./AccountingService.ts";
 import { AccountingServiceMap } from "./AccountingServiceMap.ts";
 import Persistable, { isPersistable } from "./Persistable.ts";
 import { AccountingServiceMock } from "./AccountingServiceMock.test.ts";
-import Account from "../model/Account.js";
+import Account from "../model/Account.ts";
 import {accountSchema} from "../schemas/account.schema.ts";
 
 export function getEmployeeService(): EmployeeService {

@@ -5,8 +5,8 @@ import type AccountingService from "./AccountingService.ts";
 import {AccountAlreadyExistsError, AuthenticationError} from "../model/Errors.ts";
 import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
-import Persistable from "./Persistable.js";
-import {StorageProvider} from "./StorageProvider.js";
+import Persistable from "./Persistable.ts";
+import {StorageProvider} from "./StorageProvider.ts";
 
 export class AccountingServiceMap implements AccountingService, Persistable{
     private accounts: Map<string, Account> = new Map();

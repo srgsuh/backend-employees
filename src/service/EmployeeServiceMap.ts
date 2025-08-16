@@ -4,9 +4,8 @@ import type EmployeeService from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import {FileStorage} from "./FileStorage.ts";
 import type Persistable from "./Persistable.ts";
-import {StorageProvider} from "./StorageProvider.js";
+import {StorageProvider} from "./StorageProvider.ts";
 
 export class EmployeesServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();

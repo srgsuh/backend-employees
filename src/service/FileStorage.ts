@@ -1,6 +1,6 @@
 import {prettifyError, ZodType} from "zod";
 import {readFileSync, writeFileSync} from "node:fs";
-import {StorageProvider} from "./StorageProvider.js";
+import {StorageProvider} from "./StorageProvider.ts";
 
 export class FileStorage<T> implements StorageProvider<T>{
     constructor(private readonly schema: ZodType<T, any>,
