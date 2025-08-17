@@ -1,7 +1,7 @@
 import { Employee } from "../model/Employee.ts";
 import EmployeeService from "./EmployeeService.ts";
 import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
-import {registerEmployeeService} from "./registry.ts";
+import { employeeServiceRegistry } from "./registry.ts";
 
 export class EmployeeServiceMock implements EmployeeService {
     async getEmployee(id: string): Promise<Employee> {
@@ -21,4 +21,4 @@ export class EmployeeServiceMock implements EmployeeService {
     }
 }
 
-registerEmployeeService("mock", async () => new EmployeeServiceMock());
+employeeServiceRegistry.registerService("mock", async () => new EmployeeServiceMock());

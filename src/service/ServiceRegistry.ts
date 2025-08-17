@@ -12,7 +12,7 @@ export class ServiceRegistry<T> {
         this.factories.set(key, factory);
     }
 
-    async createService(key: string, deps: any): Promise<T> {
+    async createService(key: string, deps: any = {}): Promise<T> {
         const factory = this.factories.get(key);
         if (!factory) {
             const list = this.serviceList().join(", ");
