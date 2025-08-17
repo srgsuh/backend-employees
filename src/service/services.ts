@@ -30,11 +30,7 @@ export function getAccountingService(): AccountingService {
 }
 
 export function getPersistableServices(): Persistable[] {
-    const items: Persistable[] = [];
-    for (const service of [getEmployeeService(), getAccountingService()]) {
-        if (isPersistable(service)) {
-            items.push(service);
-        }
-    }
-    return items
+    return [getEmployeeService(), getAccountingService()].filter(
+        service => isPersistable(service)
+    );
 }

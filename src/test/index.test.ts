@@ -49,8 +49,7 @@ test("POST /login BAD credentials format -> 400", async () => {
     const expectedStatus = 400;
     const response = await appRequest
         .post("/login")
-        .set("Accept", "application/json"
-)
+        .set("Accept", "application/json")
         .send({
             email: "email"
         });
@@ -61,8 +60,7 @@ test("POST /login Good credentials -> 200", async () => {
     const expectedStatus = 200;
     const response = await appRequest
         .post("/login")
-        .set("Accept", "application/json"
-)
+        .set("Accept", "application/json")
         .send({
             email: "user@example.com",
             password: "password"
