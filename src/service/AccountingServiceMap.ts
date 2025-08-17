@@ -7,6 +7,9 @@ import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
 import Persistable from "./Persistable.ts";
 import {StorageProvider} from "./StorageProvider.ts";
+import {accountingServiceRegistry} from "./registry.ts";
+import {FileStorage} from "./FileStorage.ts";
+import {accountSchema} from "../schemas/account.schema.ts";
 
 export class AccountingServiceMap implements AccountingService, Persistable{
     private accounts: Map<string, Account> = new Map();
@@ -48,3 +51,11 @@ export class AccountingServiceMap implements AccountingService, Persistable{
         console.log(`${this.accounts.size} accounts loaded from DB file`);
     }
 }
+
+accountingServiceRegistry.registerService(
+    AccountingServiceMap.name,
+    async () =>
+        new AccountingServiceMap(
+            new FileStorage<Account>(accountSchema, process.env.ACCOUNTS_FILE_PATH)
+        )
+);

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import app from './app.ts';
 import { getEnvIntVariable } from './utils/env-utils.ts';
-import { getPersistableServices } from './service/services.ts';
+import { getPersistableServices } from './service/bootstrap.ts';
 
 const DEFAULT_PORT = 3000;
 const port = getEnvIntVariable("PORT", DEFAULT_PORT);

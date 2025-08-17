@@ -2,9 +2,8 @@ import {Router} from "express";
 import { AuthController } from '../controller/AuthController.ts';
 import { validateBody } from "../middleware/validateBody.ts";
 import {loginSchema} from "../schemas/login.schema.ts";
-import { getAccountingService } from "../service/services.ts";
+import { accountingService } from "../service/bootstrap.ts";
 
-const accountingService = getAccountingService();
 const authController = new AuthController(accountingService);
 
 const loginRouter = Router();

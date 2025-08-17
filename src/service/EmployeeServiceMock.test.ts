@@ -21,4 +21,7 @@ export class EmployeeServiceMock implements EmployeeService {
     }
 }
 
-employeeServiceRegistry.registerService("mock", async () => new EmployeeServiceMock());
+employeeServiceRegistry.registerService(
+    EmployeeServiceMock.name,
+    async () => new EmployeeServiceMock()
+);

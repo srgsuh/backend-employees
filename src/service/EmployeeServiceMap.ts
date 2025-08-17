@@ -10,7 +10,7 @@ import {employeeServiceRegistry} from "./registry.ts";
 import {FileStorage} from "./FileStorage.ts";
 import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
 
-export class EmployeesServiceMap implements EmployeeService, Persistable {
+export class EmployeeServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();
 
     constructor(private storage: StorageProvider<Employee>) {
@@ -95,8 +95,10 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
     }
 }
 
-employeeServiceRegistry.registerService("map", async () => {
-    return new EmployeesServiceMap(
+employeeServiceRegistry.registerService(
+    EmployeeServiceMap.name,
+    async () => {
+    return new EmployeeServiceMap(
         new FileStorage(employeeSchemaLoad, process.env.DB_FILE_PATH)
     )
 })
