@@ -37,7 +37,7 @@ export class AccountingServiceMap implements AccountingService, Persistable{
         this.accounts.set(username, account);
     }
 
-    save() {
+    async save(): Promise<void> {
         const accounts = [...this.accounts.values()];
         this.storage.save(accounts);
         console.log(`${accounts.length} accounts saved to file`);

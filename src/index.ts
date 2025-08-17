@@ -13,7 +13,7 @@ const server = app.listen(port, (error) => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-function shutdown() {
+async function shutdown() {
     server.close(() => {
         console.log("Server closed");
         getPersistableServices().forEach(

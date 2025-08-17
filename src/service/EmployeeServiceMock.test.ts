@@ -4,20 +4,19 @@ import EmployeeService from "./EmployeeService.ts";
 import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 
 export class EmployeeServiceMock implements EmployeeService {
-    getEmployee(id: string): Employee {
+    async getEmployee(id: string): Promise<Employee> {
         return {id} as Employee;
     }
-    getAll(options?: EmployeeRequestParams): Employee[] {
+    async getAll(options?: EmployeeRequestParams): Promise<Employee[]> {
         return [];
     }
-    addEmployee(employee: Employee): Employee {
+    async addEmployee(employee: Employee): Promise<Employee> {
         return employee;
     }
-    deleteEmployee(id: string): Employee {
+    async deleteEmployee(id: string): Promise<Employee> {
         return {} as Employee;
     }
-    updateEmployee(id: string, fields: Partial<Employee>): Employee {
+    async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
         return {id, ...fields} as Employee;
     }
-
 }

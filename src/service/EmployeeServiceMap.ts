@@ -14,17 +14,20 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
         this.load();
     }
 
-    getAll(options?: EmployeeRequestParams): Employee[] {
+    async getAll(options?: EmployeeRequestParams): Promise<Employee[]> {
         const data = [...this.employees.values()];
-        return this._filter(data, options);
+        return await this._filter(data, options);
     }
 
-    getEmployee(id: string): Employee {
-        return this._findById(id);
+    async getEmployee(id: string): Promise<Employee> {
+        return await this._findById(id);
     }
 
-    addEmployee(employee: Employee): Employee {
-        const id = employee?.id ?? this._generateId();
+    async addEmployee(employee: Employee): Promise<Employee> {
+        let id = employee?.id;
+        if (!id) {
+           id = await this._generateId();
+        }
         if (this.employees.has(id)) {
             throw new EmployeeAlreadyExistsError(id);
         }
@@ -33,30 +36,30 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
         return newEmployee;
     }
 
-    deleteEmployee(id: string): Employee {
-        const employee = this._findById(id);
+    async deleteEmployee(id: string): Promise<Employee> {
+        const employee = await this._findById(id);
         this.employees.delete(id);
         return employee;
     }
 
-    updateEmployee(id: string, fields: Partial<Employee>): Employee {
-        const employee = this._findById(id);
+    async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
+        const employee = await this._findById(id);
         Object.assign(employee, fields);
         return employee;
     }
 
-    _findById(id: string): Employee {
+    async _findById(id: string): Promise<Employee> {
         if (!this.employees.has(id)) {
             throw new EmployeeNotFoundError(id);
         }
         return this.employees.get(id)!;
     }
 
-    _generateId(): string {
+    async _generateId(): Promise<string> {
         return nextId();
     }
 
-    _filter(data: Employee[], options?: EmployeeRequestParams): Employee[] {
+    async _filter(data: Employee[], options?: EmployeeRequestParams): Promise<Employee[]> {
         if (!options || _.isEmpty(options)) {
             return data;
         }
@@ -78,8 +81,8 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
         return data.filter(filter);
     }
 
-    save() {
-        this.storage.save(this.getAll());
+    async save(): Promise<void> {
+        this.storage.save(await this.getAll());
         console.log(`${this.employees.size} entities saved to DB file`);
     }
 

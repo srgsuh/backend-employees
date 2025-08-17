@@ -4,28 +4,28 @@ import {Request, Response} from "express";
 export class EmployeeController {
     constructor(private service: EmployeeService) {}
 
-    getAll = (req: Request, res: Response) => {
-        res.json(this.service.getAll(req.searchObject));
+    getAll = async (req: Request, res: Response) => {
+        res.json(await this.service.getAll(req.searchObject));
     }
 
-    getEmployee = (req: Request, res: Response) => {
+    getEmployee =  async(req: Request, res: Response) => {
         const id = req.params.id;
-        res.json(this.service.getEmployee(id));
+        res.json(await this.service.getEmployee(id));
     }
 
-    addEmployee = (req: Request, res: Response) => {
-        const employee = this.service.addEmployee(req.body);
+    addEmployee = async (req: Request, res: Response) => {
+        const employee = await this.service.addEmployee(req.body);
         res.json(employee);
     }
 
-    deleteEmployee = (req: Request, res: Response) => {
+    deleteEmployee = async (req: Request, res: Response) => {
         const id = req.params.id;
-        res.json(this.service.deleteEmployee(id));
+        res.json(await this.service.deleteEmployee(id));
     }
 
-    updateEmployee = (req: Request, res: Response) => {
+    updateEmployee = async (req: Request, res: Response) => {
         const id = req.params.id;
         const fields = req.body;
-        res.json(this.service.updateEmployee(id, fields));
+        res.json(await this.service.updateEmployee(id, fields));
     }
 }
