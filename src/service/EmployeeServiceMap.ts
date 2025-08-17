@@ -6,6 +6,9 @@ import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 import type Persistable from "./Persistable.ts";
 import {StorageProvider} from "./StorageProvider.ts";
+import {registerEmployeeService} from "./registry.ts";
+import {FileStorage} from "./FileStorage.ts";
+import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
 
 export class EmployeesServiceMap implements EmployeeService, Persistable {
     private employees: Map<string, Employee> = new Map();
@@ -91,3 +94,7 @@ export class EmployeesServiceMap implements EmployeeService, Persistable {
         console.log(`${this.employees.size} entities loaded from DB file`);
     }
 }
+
+registerEmployeeService("map", async () => {
+    return new EmployeesServiceMap(new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH));
+});

@@ -10,27 +10,24 @@ import Persistable, { isPersistable } from "./Persistable.ts";
 import { AccountingServiceMock } from "./AccountingServiceMock.test.ts";
 import Account from "../model/Account.ts";
 import {accountSchema} from "../schemas/account.schema.ts";
+import { employeeService } from "./bootstrap.ts";
 
-export function getEmployeeService(): EmployeeService {
-    if (process.env.NODE_TEST_CONTEXT) {
-        return new EmployeeServiceMock();
-    }
-    return new EmployeesServiceMap(
-        new FileStorage<Employee>(employeeSchemaLoad, process.env.DB_FILE_PATH)
-    );
-}
+let accountService: AccountingService | undefined = undefined;
 
 export function getAccountingService(): AccountingService {
     if (process.env.NODE_TEST_CONTEXT) {
         return new AccountingServiceMock();
     }
-    return new AccountingServiceMap(
-        new FileStorage<Account>(accountSchema, process.env.ACCOUNTS_FILE_PATH)
-    );
+    if (!accountService) {
+        accountService = new AccountingServiceMap(
+            new FileStorage<Account>(accountSchema, process.env.ACCOUNTS_FILE_PATH)
+        );
+    }
+    return accountService;
 }
 
 export function getPersistableServices(): Persistable[] {
-    return [getEmployeeService(), getAccountingService()].filter(
+    return [employeeService, getAccountingService()].filter(
         service => isPersistable(service)
     );
 }
