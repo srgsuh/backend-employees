@@ -8,8 +8,8 @@
   "main": "/src/index.ts",
   "scripts": {
     "dev": "nodemon",
-    "test-controller": "node --env-file .controller.test.env --test --loader ts-node/esm --no-warnings src/test/controllers.test.ts",
-    "test-service": "node --loader ts-node/esm --env-file .employee.test.env --no-warnings src/test/employee-service.test.ts"
+    "test-controller": "node --loader ts-node/esm --no-warnings --test --env-file .controller.test.env src/test/controllers.test.ts",
+    "test-service": "node --loader ts-node/esm  --no-warnings --test --env-file .employee.test.env src/test/employee-service.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

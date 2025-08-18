@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {AuthenticationError, HttpError} from "../../model/Errors.js";
+import {AuthenticationError } from "../../model/Errors.ts";
 
 export function authErrorHandler(err: unknown, _req: Request, _res: Response, _next: NextFunction) {
     if (err instanceof AuthenticationError) {
