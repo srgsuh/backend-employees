@@ -1,7 +1,7 @@
-import {employeeService as service} from "../../service/bootstrap.ts";
+import {employeeService as service} from "../service/bootstrap.ts";
 import test, {beforeEach} from "node:test";
 import assert from "node:assert";
-import {EmployeeAlreadyExistsError} from "../../model/Errors.ts";
+import {EmployeeAlreadyExistsError} from "../model/Errors.ts";
 
 const stateEmployees = [
     {
