@@ -5,7 +5,7 @@ import {
     EmployeeAlreadyExistsError,
     EmployeeNotFoundError,
 } from "../model/Errors.ts";
-import {matchAll, matchProfile, compareArraysByIds} from "../utils/match-utils.ts";
+import {matchAll, matchProfile, matchEmployeeArrays} from "../utils/match-utils.ts";
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import _ from "lodash";
@@ -138,12 +138,25 @@ describe("Test addEmployee(employee) method", async () => {
     await it("On not existing employee -> add with new ID", async () => {
         const addedEmployee = await service.addEmployee(newEmployee);
         const addedId = addedEmployee.id;
-        assert.ok(addedId, "Successfully generated ID");
+        assert.ok(addedId, "Service didn't generate an ID");
+
         const employeeFromService = await service.getEmployee(addedId);
         const {isEqual, message} = matchProfile(newEmployee, employeeFromService);
         assert.ok(isEqual, message);
     });
 });
+
+async function testUpdateEmployee(id: string, baseEmployee: Employee, updEmployee: Partial<Employee>) {
+    const expected: Employee = {...baseEmployee, ...updEmployee};
+
+    const updated = await service.updateEmployee(id, updEmployee);
+    const matchUpdated = matchAll(expected, updated);
+    assert.ok(matchUpdated.isEqual, `Employee returned on update doesn't match expected value: ${matchUpdated.message}`);
+
+    const received = await service.getEmployee(id);
+    const matchReceived = matchAll(expected, received);
+    assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+}
 
 describe(
     "Test updateEmployee method", async ()=> {
@@ -153,28 +166,24 @@ describe(
             EmployeeNotFoundError,
         );
     });
-    await it("Update single field correctly", async ()=> {
+    await it("Update single field correctly - department", async ()=> {
         const id = e1.id!;
-        const field = _.pick(newEmployee, "department");
-        const expected = {...e1, ...field};
+        const fields = _.pick(newEmployee, "department");
 
-        const updated = await service.updateEmployee(id, field);
-        const matchUpdated = matchAll(expected, updated);
-        assert.ok(matchUpdated.isEqual, `Employee on update doesn't match expected: ${matchUpdated.message}`);
-        const received = await service.getEmployee(id);
-        const matchReceived = matchAll(expected, received);
-        assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+        await testUpdateEmployee(id, e1, fields);
     });
 
-    await it("Update all fields correctly", async ()=> {
+    await it("Update single field correctly - salary", async ()=> {
         const id = e1.id!;
-        const expected = {...e1, ...newEmployee};
-        const updated = await service.updateEmployee(id, newEmployee);
-        const matchUpdated = matchAll(expected, updated);
-        assert.ok(matchUpdated.isEqual, `Employee on update doesn't match expected: ${matchUpdated.message}`);
-        const received = await service.getEmployee(id);
-        const matchReceived = matchAll(expected, received);
-        assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+        const fields = _.pick(newEmployee, "salary");
+
+        await testUpdateEmployee(id, e1, fields);
+    });
+
+    await it("Update all profile fields at once correctly", async ()=> {
+        const id = e1.id!;
+
+        await testUpdateEmployee(id, e1, newEmployee);
     })
 });
 
@@ -182,39 +191,54 @@ describe("Test getAll with filters", async () => {
     await it("Filter by department", async () => {
         const department = "IT";
         const options: EmployeeRequestParams = {department};
-        const array = await service.getAll(options);
+
+        const provided = await service.getAll(options);
         const expected = [e3, e4, e5];
-        assert.ok(compareArraysByIds(array, expected));
+
+        const {isEqual, message} = matchEmployeeArrays(provided, expected);
+        assert.ok(isEqual, message);
     });
     await it("Filter by salary", async () => {
-       const salary_gte = 25_000, salary_lte = 80_000;
-       const options = {salary_lte, salary_gte};
-        const array = await service.getAll(options);
+        const salary_gte = 25_000, salary_lte = 80_000;
+        const options = {salary_lte, salary_gte};
+
+        const provided = await service.getAll(options);
         const expected = [e3, e1];
-        assert.ok(compareArraysByIds(array, expected));
+
+        const {isEqual, message} = matchEmployeeArrays(provided, expected);
+        assert.ok(isEqual, message);
     });
     await it("Filter by birthDate", async () => {
         const birthDate_gte = "1992-01-01", birthDate_lte = "2002-01-01";
         const options = {birthDate_gte, birthDate_lte};
-        const array = await service.getAll(options);
+
+        const provided = await service.getAll(options);
         const expected = [e1, e2];
-        assert.ok(compareArraysByIds(array, expected));
+
+        const {isEqual, message} = matchEmployeeArrays(provided, expected);
+        assert.ok(isEqual, message);
     });
     await it("Filter by department, salary and birthDate", async () => {
         const department = "IT";
         const salary_gte = 70_000, salary_lte = 90_000;
         const birthDate_gte = "1982-01-01", birthDate_lte = "1982-10-10";
         const options = {department, salary_gte, salary_lte, birthDate_gte, birthDate_lte};
-        const array = await service.getAll(options);
+
+        const provided = await service.getAll(options);
         const expected = [e3];
-        assert.ok(compareArraysByIds(array, expected));
+
+        const {isEqual, message} = matchEmployeeArrays(provided, expected);
+        assert.ok(isEqual, message);
     });
     await it("Filter by department, birthDate with empty result set", async()=>{
         const department = "IT";
         const birthDate_gte = "2000-01-01";
         const options = {department, birthDate_gte};
-        const array = await service.getAll(options);
+
+        const provided = await service.getAll(options);
         const expected: Employee[] = [];
-        assert.ok(compareArraysByIds(array, expected));
+
+        const {isEqual, message} = matchEmployeeArrays(provided, expected);
+        assert.ok(isEqual, message);
     });
 });

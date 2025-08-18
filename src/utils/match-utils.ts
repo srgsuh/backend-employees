@@ -19,10 +19,6 @@ export function matchKeys<T>(e1: T, e2: T, keys: (keyof T)[]) {
     return {isEqual: message === "", message};
 }
 
-export function matchId(e1: Partial<Employee>, e2: Partial<Employee>) {
-    return matchKey<Partial<Employee>>(e1, e2, "id");
-}
-
 export function matchProfile(e1: Partial<Employee>, e2: Partial<Employee>) {
     return matchKeys<Partial<Employee>>(e1, e2, ["fullName", "birthDate", "department", "salary", "avatar"]);
 }
@@ -31,7 +27,18 @@ export function matchAll(e1: Partial<Employee>, e2: Partial<Employee>) {
     return matchKeys<Partial<Employee>>(e1, e2, ["id", "fullName", "birthDate", "department", "salary", "avatar"]);
 }
 
-export function compareArraysByIds(a1: Employee[], a2: Employee[]): boolean {
-    const normalize = (a: Employee[])=>a.map(e=>e.id).sort();
-    return normalize(a1).join(",") === normalize(a2).join(",");
+export function matchEmployeeArrays(a1: Employee[], a2: Employee[]): Matcher {
+    const idStr = (a: Employee[]) => a.map(e => e.id).sort().join(",");
+    let message = "";
+    if (a1.length !== a2.length) {
+        message = `arrays have different length: ${a1.length} !== ${a2.length}`;
+    }
+    else {
+        const idStr1 = idStr(a1);
+        const idStr2 = idStr(a2);
+        if (idStr1 !== idStr2) {
+            message = `arrays contain different ids: ${idStr1} !== ${idStr2}`;
+        }
+    }
+    return {isEqual: !message, message};
 }
