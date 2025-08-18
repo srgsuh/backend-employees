@@ -12,8 +12,12 @@ export class HttpError extends Error {
 
 export class AuthenticationError extends HttpError {
     name = "AuthenticationError";
-    constructor(message: string = "Authentication is required to access this resource", options?: ErrorOptions) {
+    public static readonly DEFAULT_MESSAGE = "Authentication is required to access this resource";
+    constructor(message: string = AuthenticationError.DEFAULT_MESSAGE, options?: ErrorOptions) {
         super(message, 401, options);
+    }
+    static from(error: unknown) {
+        return new AuthenticationError(AuthenticationError.DEFAULT_MESSAGE, {cause: error});
     }
 }
 

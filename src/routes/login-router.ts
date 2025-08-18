@@ -3,11 +3,13 @@ import { AuthController } from '../controller/AuthController.ts';
 import { validateBody } from "../middleware/validateBody.ts";
 import {loginSchema} from "../schemas/login.schema.ts";
 import { accountingService } from "../service/bootstrap.ts";
+import {authErrorHandler} from "../middleware/auth/authErrorHandler.js";
 
 const authController = new AuthController(accountingService);
 
 const loginRouter = Router();
 
 loginRouter.post("/", validateBody(loginSchema), authController.login);
+loginRouter.use(authErrorHandler);
 
 export default loginRouter;

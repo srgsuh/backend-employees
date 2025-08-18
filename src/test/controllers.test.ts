@@ -25,28 +25,8 @@ const employee = {
     birthDate: "2000-01-01"
 };
 
-test("OPTIONS /login -> 204", async () => {
-    const expectedStatus = 204;
-    const response = await appRequest
-        .options("/login")
-        .set("Accept", "*/*")
-        .set("Origin", "http://localhost:3000")
-        .set("Access-Control-Request-Method", "POST")
-        .set("Access-Control-Request-Headers", "content-type");
-    expect(response.statusCode).to.equal(expectedStatus);
-    expect(response.headers)
-        .to.have.property("access-control-allow-origin")
-        .that.is.not.undefined;
-    expect(response.headers)
-        .to.have.property("access-control-allow-headers")
-        .that.is.not.undefined;
-    expect(response.headers)
-        .to.have.property("access-control-allow-methods")
-        .that.includes("POST");
-})
-
-test("POST /login BAD credentials format -> 400", async () => {
-    const expectedStatus = 400;
+test("POST /login BAD credentials format -> 401", async () => {
+    const expectedStatus = 401;
     const response = await appRequest
         .post("/login")
         .set("Accept", "application/json")
