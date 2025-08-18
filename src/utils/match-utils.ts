@@ -19,16 +19,16 @@ export function matchKeys<T>(e1: T, e2: T, keys: (keyof T)[]) {
     return {isEqual: message === "", message};
 }
 
-export function matchId(e1: Employee, e2: Employee) {
-    return matchKey<Employee>(e1, e2, "id");
+export function matchId(e1: Partial<Employee>, e2: Partial<Employee>) {
+    return matchKey<Partial<Employee>>(e1, e2, "id");
 }
 
-export function matchProfile(e1: Employee, e2: Employee) {
-    return matchKeys<Employee>(e1, e2, ["fullName", "birthDate", "department", "salary", "avatar"]);
+export function matchProfile(e1: Partial<Employee>, e2: Partial<Employee>) {
+    return matchKeys<Partial<Employee>>(e1, e2, ["fullName", "birthDate", "department", "salary", "avatar"]);
 }
 
-export function matchAll(e1: Employee, e2: Employee) {
-    return matchKeys<Employee>(e1, e2, ["id", "fullName", "birthDate", "department", "salary", "avatar"]);
+export function matchAll(e1: Partial<Employee>, e2: Partial<Employee>) {
+    return matchKeys<Partial<Employee>>(e1, e2, ["id", "fullName", "birthDate", "department", "salary", "avatar"]);
 }
 
 export function compareArraysByIds(a1: Employee[], a2: Employee[]): boolean {

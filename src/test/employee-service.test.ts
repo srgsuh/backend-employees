@@ -8,14 +8,7 @@ import {
 import {matchAll, matchProfile, compareArraysByIds} from "../utils/match-utils.ts";
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
-
-const newEmployee = {
-    fullName: "John",
-    department: "IT",
-    avatar: "",
-    salary: 85_000,
-    birthDate: "1982-10-01"
-}
+import _ from "lodash";
 
 const e1: Employee = {
     id: "1",
@@ -58,6 +51,14 @@ const e5: Employee = {
     birthDate: "1982-10-06"
 };
 const dbArray: Employee[] = [e1, e2, e3, e4, e5];
+
+const newEmployee = {
+    fullName: "New Name",
+    department: "Sales",
+    avatar: "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/female/128/80.jpg",
+    salary: 27000,
+    birthDate: "2001-02-03"
+}
 
 beforeEach(async () => {
     const array = await service.getAll();
@@ -142,6 +143,39 @@ describe("Test addEmployee(employee) method", async () => {
         const {isEqual, message} = matchProfile(newEmployee, employeeFromService);
         assert.ok(isEqual, message);
     });
+});
+
+describe(
+    "Test updateEmployee method", async ()=> {
+    await it("On non-existent id -> throw EmployeeNotFoundError", async ()=> {
+        await assert.rejects(
+            service.updateEmployee("10000000000", newEmployee),
+            EmployeeNotFoundError,
+        );
+    });
+    await it("Update single field correctly", async ()=> {
+        const id = e1.id!;
+        const field = _.pick(newEmployee, "department");
+        const expected = {...e1, ...field};
+
+        const updated = await service.updateEmployee(id, field);
+        const matchUpdated = matchAll(expected, updated);
+        assert.ok(matchUpdated.isEqual, `Employee on update doesn't match expected: ${matchUpdated.message}`);
+        const received = await service.getEmployee(id);
+        const matchReceived = matchAll(expected, received);
+        assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+    });
+
+    await it("Update all fields correctly", async ()=> {
+        const id = e1.id!;
+        const expected = {...e1, ...newEmployee};
+        const updated = await service.updateEmployee(id, newEmployee);
+        const matchUpdated = matchAll(expected, updated);
+        assert.ok(matchUpdated.isEqual, `Employee on update doesn't match expected: ${matchUpdated.message}`);
+        const received = await service.getEmployee(id);
+        const matchReceived = matchAll(expected, received);
+        assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+    })
 });
 
 describe("Test getAll with filters", async () => {
