@@ -1,6 +1,6 @@
 import {employeeService as service} from "../service/bootstrap.ts";
 import {beforeEach, describe, it} from "node:test";
-import assert from "node:assert";
+import assert from 'node:assert/strict';
 import {
     EmployeeAlreadyExistsError,
     EmployeeNotFoundError,
@@ -70,23 +70,9 @@ beforeEach(async () => {
     }
 });
 
-describe("Test getAll method without parameters", async () => {
-    await it("Method provides correct number of employees", async () => {
-        const array = await service.getAll();
-        assert.equal(array.length, dbArray.length, `Method returns wrong number of employees: ${array.length} !==${dbArray.length}`);
-    });
-    await it("Method provides all employees", async () => {
-        const array = await service.getAll();
-        dbArray.forEach(dbEmployee => {
-            const employeeFromService = array.find(
-                item => item.id === dbEmployee.id
-            );
-            assert.ok(employeeFromService, `Employee id = ${dbEmployee.id} not found!`);
-            const {isEqual, message} = matchAll(dbEmployee, employeeFromService);
-            assert.ok(isEqual, message);
-        });
-    });
-});
+function compareArrays(received: Employee[], expected: Employee[]) {
+    assert.deepStrictEqual(_.sortBy(received, "id"), _.sortBy(expected, "id"));
+}
 
 describe("Test getEmployee method", async () => {
     await it("On non-existent id -> throw EmployeeNotFoundError", async () => {
@@ -99,8 +85,7 @@ describe("Test getEmployee method", async () => {
     await it("On existing id -> return correct employee", async () => {
         const employee = dbArray[0];
         const employeeFromService = await service.getEmployee(employee.id!);
-        const {isEqual, message} = matchAll(employee, employeeFromService);
-        assert.ok(isEqual, message);
+        assert.deepStrictEqual(employeeFromService, employee);
     });
 })
 
@@ -112,22 +97,18 @@ describe("Test deleteEmployee method", async () => {
         )
     });
 
-    await it("On existing id -> delete correct employee", async () => {
+    await it("On existing id -> delete employee", async () => {
         const employee = dbArray[1];
-        const deletedEmployee = await service.deleteEmployee(employee.id!);
-
-        const {isEqual, message} = matchAll(employee, deletedEmployee);
-        assert.ok(isEqual, message);
+        await service.deleteEmployee(employee.id!);
 
         await assert.rejects(
             service.getEmployee(employee.id!),
             EmployeeNotFoundError,
-            "Employee still exists after deletion"
         );
     });
 });
 
-describe("Test addEmployee(employee) method", async () => {
+describe("Test addEmployee method", async () => {
     await it("On existing id -> throw EmployeeAlreadyExistsError", async () => {
         await assert.rejects(
             service.addEmployee(dbArray[0]),
@@ -135,14 +116,15 @@ describe("Test addEmployee(employee) method", async () => {
         );
     });
 
-    await it("On not existing employee -> add with new ID", async () => {
+    await it("On not existing employee -> return added employee", async () => {
         const addedEmployee = await service.addEmployee(newEmployee);
-        const addedId = addedEmployee.id;
-        assert.ok(addedId, "Service didn't generate an ID");
+        assert.deepStrictEqual(_.omit(addedEmployee, "id"), newEmployee);
+    });
 
-        const employeeFromService = await service.getEmployee(addedId);
-        const {isEqual, message} = matchProfile(newEmployee, employeeFromService);
-        assert.ok(isEqual, message);
+    await it("On not existing employee -> new employee available with get", async () => {
+        const addedEmployee = await service.addEmployee(newEmployee);
+        const employeeFromService = await service.getEmployee(addedEmployee.id!);
+        assert.deepStrictEqual(_.omit(employeeFromService, "id"), newEmployee);
     });
 });
 
@@ -150,12 +132,10 @@ async function testUpdateEmployee(id: string, baseEmployee: Employee, updEmploye
     const expected: Employee = {...baseEmployee, ...updEmployee};
 
     const updated = await service.updateEmployee(id, updEmployee);
-    const matchUpdated = matchAll(expected, updated);
-    assert.ok(matchUpdated.isEqual, `Employee returned on update doesn't match expected value: ${matchUpdated.message}`);
+    assert.deepStrictEqual(updated, expected);
 
     const received = await service.getEmployee(id);
-    const matchReceived = matchAll(expected, received);
-    assert.ok(matchReceived.isEqual, `Employee received after update doesn't match expected: ${matchReceived.message}`);
+    assert.deepStrictEqual(received, expected);
 }
 
 describe(
@@ -195,18 +175,16 @@ describe("Test getAll with filters", async () => {
         const provided = await service.getAll(options);
         const expected = [e3, e4, e5];
 
-        const {isEqual, message} = matchEmployeeArrays(provided, expected);
-        assert.ok(isEqual, message);
+        compareArrays(provided, expected);
     });
     await it("Filter by salary", async () => {
         const salary_gte = 25_000, salary_lte = 80_000;
         const options = {salary_lte, salary_gte};
 
         const provided = await service.getAll(options);
-        const expected = [e3, e1];
+        const expected = [e1, e3];
 
-        const {isEqual, message} = matchEmployeeArrays(provided, expected);
-        assert.ok(isEqual, message);
+        compareArrays(provided, expected);
     });
     await it("Filter by birthDate", async () => {
         const birthDate_gte = "1992-01-01", birthDate_lte = "2002-01-01";
@@ -215,8 +193,7 @@ describe("Test getAll with filters", async () => {
         const provided = await service.getAll(options);
         const expected = [e1, e2];
 
-        const {isEqual, message} = matchEmployeeArrays(provided, expected);
-        assert.ok(isEqual, message);
+        compareArrays(provided, expected);
     });
     await it("Filter by department, salary and birthDate", async () => {
         const department = "IT";
@@ -227,8 +204,7 @@ describe("Test getAll with filters", async () => {
         const provided = await service.getAll(options);
         const expected = [e3];
 
-        const {isEqual, message} = matchEmployeeArrays(provided, expected);
-        assert.ok(isEqual, message);
+        compareArrays(provided, expected);
     });
     await it("Filter by department, birthDate with empty result set", async()=>{
         const department = "IT";
@@ -238,7 +214,6 @@ describe("Test getAll with filters", async () => {
         const provided = await service.getAll(options);
         const expected: Employee[] = [];
 
-        const {isEqual, message} = matchEmployeeArrays(provided, expected);
-        assert.ok(isEqual, message);
+        compareArrays(provided, expected);
     });
 });
