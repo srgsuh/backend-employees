@@ -1,9 +1,9 @@
-import {Router} from "express";
+import { Router } from "express";
 import { AuthController } from '../controller/AuthController.ts';
 import { validateBody } from "../middleware/validateBody.ts";
-import {loginSchema} from "../schemas/login.schema.ts";
+import { loginSchema } from "../schemas/login.schema.ts";
 import { accountingService } from "../service/bootstrap.ts";
-import {authErrorHandler} from "../middleware/auth/authErrorHandler.js";
+import { authErrorHandler } from "../middleware/auth/authErrorHandler.ts";
 
 const authController = new AuthController(accountingService);
 

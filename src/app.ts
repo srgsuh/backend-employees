@@ -10,7 +10,6 @@ import employeeRouter from "./routes/employees-router.ts";
 import loginRouter from "./routes/login-router.ts";
 import {authenticate} from "./middleware/auth/authenticate.ts";
 
-
 const DEFAULT_MORGAN_FORMAT = 'dev';
 const DEFAULT_MORGAN_SKIP_THRESHOLD = 400;
 const DEFAULT_LOG_DIR = './logs';
@@ -28,8 +27,8 @@ if (!morganOff) {
     morganFile && app.use(morgan('combined', {stream: createWriteStream(path.join(logDir, morganFile), {flags: 'a'})}));
 }
 app.use("/employees", authenticate);
-app.use(express.json());
 
+app.use(express.json());
 app.use("/employees", employeeRouter);
 app.use("/login", loginRouter);
 
