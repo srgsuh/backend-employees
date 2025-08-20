@@ -3,7 +3,7 @@ import JWTUtils, {isJWTPayload} from "../../security/JWTUtils.ts";
 
 const PREFIX = "Bearer ";
 
-export function authenticate(req: Request, res: Response, next: NextFunction): void {
+export function authenticate(req: Request, _res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith(PREFIX)) {
         const token = authHeader.substring(PREFIX.length);

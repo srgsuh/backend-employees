@@ -3,6 +3,7 @@ import "./EmployeeServiceMap.ts";
 import "./EmployeeServiceMock.test.ts";
 import "./AccountingServiceMap.ts";
 import "./AccountingServiceMock.test.ts";
+import "./EmployeeServiceSQLite.ts";
 import type Persistable from "./Persistable.ts";
 import { isPersistable } from "./Persistable.ts";
 

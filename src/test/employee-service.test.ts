@@ -1,5 +1,5 @@
 import {employeeService as service} from "../service/bootstrap.ts";
-import {beforeEach, describe, it} from "node:test";
+import {after, beforeEach, describe, it} from "node:test";
 import assert from 'node:assert/strict';
 import {
     EmployeeAlreadyExistsError,
@@ -8,6 +8,7 @@ import {
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import _ from "lodash";
+import {isPersistable} from "../service/Persistable.js";
 
 const e1: Employee = {
     id: "1",
@@ -58,6 +59,12 @@ const newEmployee = {
     salary: 27000,
     birthDate: "2001-02-03"
 }
+
+after(async () => {
+    if (isPersistable(service)) {
+        await service.save();
+    }
+});
 
 beforeEach(async () => {
     const array = await service.getAll();

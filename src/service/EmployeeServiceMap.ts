@@ -29,7 +29,7 @@ export class EmployeeServiceMap implements EmployeeService, Persistable {
     async addEmployee(employee: Employee): Promise<Employee> {
         let id = employee?.id;
         if (!id) {
-           id = await this._generateId();
+           id = this._generateId();
         }
         if (this.employees.has(id)) {
             throw new EmployeeAlreadyExistsError(id);
@@ -58,7 +58,7 @@ export class EmployeeServiceMap implements EmployeeService, Persistable {
         return this.employees.get(id)!;
     }
 
-    async _generateId(): Promise<string> {
+    _generateId(): string {
         return nextId();
     }
 
