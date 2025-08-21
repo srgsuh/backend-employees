@@ -1,10 +1,32 @@
-import AbstractEmployeeServiceSQL from "./AbstractEmployeeServiceSQL.ts";
+import AbstractEmployeeServiceSQL, {TABLE_NAME} from "./AbstractEmployeeServiceSQL.ts";
 import {Knex} from "knex";
-import {employeeServiceRegistry} from "./registry.js";
+import {employeeServiceRegistry} from "./registry.ts";
+import {Employee} from "../model/Employee.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
 
 export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
     constructor(config: Knex.Config) {
         super(config);
+    }
+
+    async addEmployee(employee: Employee): Promise<Employee> {
+        const id = employee.id || this._generateId();
+        try {
+            const e = await this.db(TABLE_NAME).insert({...employee, id}).returning<Employee[]>("*");
+            return e[0];
+        }
+        catch (e) {
+            throw new EmployeeAlreadyExistsError(id);
+        }
+    }
+
+    async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
+        const employees = await this.db(TABLE_NAME)
+            .update(fields).where({id}).returning<Employee[]>("*");
+        if (employees.length === 0) {
+            throw new EmployeeNotFoundError(id);
+        }
+        return employees[0];
     }
 }
 
@@ -12,7 +34,7 @@ employeeServiceRegistry.registerService(
     EmployeeServiceSQLite.name,
     async () => {
         const service: AbstractEmployeeServiceSQL = new EmployeeServiceSQLite({
-            client: "sqlite3",
+            client: "better-sqlite3",
             connection: {
                 filename: process.env.SQLITE_FILE_NAME ?? "db.sqlite"
             },
