@@ -103,6 +103,12 @@ describe("Test deleteEmployee method", async () => {
         )
     });
 
+    await it("On existing id -> return deleted employee", async () => {
+        const employee = dbArray[2];
+        const fromService = await service.deleteEmployee(employee.id!);
+        assert.deepStrictEqual(fromService, employee);
+    })
+
     await it("On existing id -> delete employee", async () => {
         const employee = dbArray[1];
         await service.deleteEmployee(employee.id!);
@@ -122,15 +128,26 @@ describe("Test addEmployee method", async () => {
         );
     });
 
-    await it("On not existing employee -> return added employee", async () => {
+    await it("On new employee w/o id -> return employee with generated ID", async () => {
+        const addedEmployee = await service.addEmployee(newEmployee);
+        assert.ok(addedEmployee.id);
+    });
+
+    await it("On new employee with id -> return employee with the same ID", async () => {
+        const employeeToAdd = {...newEmployee, id: "100"};
+        const addedEmployee = await service.addEmployee(employeeToAdd);
+        assert.deepStrictEqual(addedEmployee, employeeToAdd);
+    });
+
+    await it("On new employee -> return added employee", async () => {
         const addedEmployee = await service.addEmployee(newEmployee);
         assert.deepStrictEqual(_.omit(addedEmployee, "id"), newEmployee);
     });
 
-    await it("On not existing employee -> new employee available with get", async () => {
+    await it("On new employee -> new employee available with get", async () => {
         const addedEmployee = await service.addEmployee(newEmployee);
         const employeeFromService = await service.getEmployee(addedEmployee.id!);
-        assert.deepStrictEqual(_.omit(employeeFromService, "id"), newEmployee);
+        assert.deepStrictEqual(employeeFromService, addedEmployee);
     });
 });
 
