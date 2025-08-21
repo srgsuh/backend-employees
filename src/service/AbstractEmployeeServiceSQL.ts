@@ -14,6 +14,11 @@ const cBirthDate: keyof Employee = "birthDate";
 const cSalary: keyof Employee = "salary";
 const cAvatar: keyof Employee = "avatar";
 
+const operators = {
+    gte: ">=",
+    lte: "<=",
+}
+
 export default abstract class AbstractEmployeeServiceSQL implements EmployeeService, Persistable {
     private readonly db: Knex;
 
@@ -36,9 +41,17 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
 
     async getAll(options?: EmployeeRequestParams): Promise<Employee[]> {
         const query = this.db<Employee>(TABLE_NAME);
-        if (options?.department) {
-            query.where({department: options.department});
+        const {department, ...rest} = options ?? {};
+        if (department) {
+            query.where({department});
         }
+        Object.entries(rest).forEach(([key, value]) => {
+            const [reqKey, reqOperator] = key.split("_");
+            if (value !== undefined && reqOperator in operators) {
+                query.where(reqKey, operators[reqOperator as keyof typeof operators], value);
+            }
+        })
+
         return query;
     }
 
