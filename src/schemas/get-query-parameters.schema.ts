@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const searchRequestSchema = z.strictObject({
-    department: z.string().optional(),
+    department: z.string().min(1).optional(),
     salary_gte: z.coerce.number().optional(),
     salary_lte: z.coerce.number().optional(),
     birthDate_gte: z.iso.date().optional(),

@@ -49,3 +49,6 @@ temp/
 
 db.json
 accounts.json
+
+*.sqlite
+*.sqlite3
