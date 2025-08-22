@@ -20,47 +20,47 @@ import {EmployeeServiceSQLite} from "./EmployeeServiceSQLite.ts";
 const container = new DIContainer();
 // Configuration, schemas, etc.
 container.register<ZodType<Employee, any>>("schema.employee",
-    ()=>employeeSchemaLoad
+    async ()=>employeeSchemaLoad
 );
 container.register<ZodType<Account, any>>("schema.account",
-    ()=>accountSchema
+    async ()=>accountSchema
 );
-container.register<Knex.Config>( "better-sqlite3.config", ()=>configBetterSQLite3
+container.register<Knex.Config>( "better-sqlite3.config", async ()=>configBetterSQLite3
 )
-container.register<Knex.Config>( "sqlite3.config", ()=>configSQLite3
+container.register<Knex.Config>( "sqlite3.config", async ()=>configSQLite3
 );
 // Loaders, DBs, etc.
 container.register<Knex>( "knex.database",
-    (c)=>createKnexDatabase(
+    async (c)=>createKnexDatabase(
         await c.resolve<Knex.Config>("better-sqlite3.config")
     )
 );
 container.register<StorageProvider<Employee>>("storage.employee",
-    (c: DIContainer)=>new FileStorage<Employee>(
+    async (c: DIContainer)=>new FileStorage<Employee>(
         await c.resolve<ZodType<Employee, any>>("schema.employee"), process.env.EMPLOYEES_FILE_PATH)
 );
 container.register<StorageProvider<Account>>("storage.employee",
-    (c: DIContainer)=>new FileStorage<Account>(
+    async (c: DIContainer)=>new FileStorage<Account>(
         await c.resolve<ZodType<Account, any>>("schema.account"), process.env.ACCOUNTS_FILE_PATH)
 );
 
 // Services
 container.register<EmployeeService>( EmployeeServiceMock.name,
-    ()=>new EmployeeServiceMock()
+    async ()=>new EmployeeServiceMock()
 );
 container.register<EmployeeService>( EmployeeServiceMap.name,
-    (c: DIContainer)=>new EmployeeServiceMap(
+    async (c: DIContainer)=>new EmployeeServiceMap(
         await c.resolve<StorageProvider<Employee>>("storage.employee"))
 );
 container.register<EmployeeService>( EmployeeServiceSQLite.name,
-    (c: DIContainer)=>new EmployeeServiceSQLite(
+    async (c: DIContainer)=>new EmployeeServiceSQLite(
         await c.resolve<Knex>("knex.database"))
 );
 container.register<AccountingService>( AccountingServiceMock.name,
-    ()=>new AccountingServiceMock()
+    async ()=>new AccountingServiceMock()
 );
 container.register<AccountingService>( AccountingServiceMap.name,
-    (c: DIContainer)=>new AccountingServiceMap(
+    async (c: DIContainer)=>new AccountingServiceMap(
         await c.resolve<StorageProvider<Account>>("storage.account"))
 );
 
