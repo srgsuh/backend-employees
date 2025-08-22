@@ -12,7 +12,8 @@ export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
     async addEmployee(employee: Employee): Promise<Employee> {
         const id = employee.id || this._generateId();
         try {
-            const e = await this.db(TABLE_NAME).insert({...employee, id}).returning<Employee[]>("*");
+            const e = await this.db(TABLE_NAME).insert({...employee, id})
+                .returning<Employee[]>("*");
             return e[0];
         }
         catch (e) {
