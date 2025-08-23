@@ -42,6 +42,14 @@ export class EmployeeNotFoundError extends HttpError {
     }
 }
 
+export class QueryLimitExceededError extends HttpError {
+    name = "QueryLimitExceededError";
+    constructor(amount: number, limit: number) {
+        const message = `The query yielded ${amount} rows, which exceeds the maximum allowed limit of ${limit} rows`;
+        super(message, 429);
+    }
+}
+
 export class AccountAlreadyExistsError extends HttpError {
     name = "AccountAlreadyExistsError";
     constructor(email: string) {
