@@ -16,12 +16,14 @@ import {Knex} from "knex";
 import {configBetterSQLite3, configSQLite3} from "./db.config.ts";
 import {KnexDatabase} from "../service/KnexDatabase.ts";
 import {EmployeeServiceSQLite} from "../service/Employees/EmployeeServiceSQLite.ts";
-import {AccountingServiceSQL} from "../service/Accounting/AccountingServiceSQL.js";
-import HashProvider from "../security/HashProvider.js";
-import {BcryptHash} from "../security/BcryptHash.js";
+import {AccountingServiceSQL} from "../service/Accounting/AccountingServiceSQL.ts";
+import HashProvider from "../security/HashProvider.ts";
+import {BcryptHash} from "../security/BcryptHash.ts";
 
 export const container = new DIContainer();
+
 // Configuration, schemas, etc.
+
 container.register<ZodType<Employee, any>>("schema.employee",
     async ()=>employeeSchemaLoad
 );
@@ -32,7 +34,9 @@ container.register<Knex.Config>( "better-sqlite3.config", async ()=>configBetter
 )
 container.register<Knex.Config>( "sqlite3.config", async ()=>configSQLite3
 );
+
 // Loaders, DBs, etc.
+
 container.register<KnexDatabase>( "better-sqlite3.database",
     async (c)=>new KnexDatabase(
         await c.resolve<Knex.Config>("better-sqlite3.config")
@@ -53,7 +57,9 @@ container.register<StorageProvider<Account>>("storage.account",
 );
 container.register<HashProvider>( "bcrypt", async ()=>new BcryptHash()
 );
+
 // Services
+
 container.register<EmployeeService>( EmployeeServiceMock.name,
     async ()=>new EmployeeServiceMock()
 );
