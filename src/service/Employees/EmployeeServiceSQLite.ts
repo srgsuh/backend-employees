@@ -1,8 +1,8 @@
 import AbstractEmployeeServiceSQL, {TABLE_NAME} from "./AbstractEmployeeServiceSQL.ts";
-import {Employee} from "../model/Employee.ts";
-import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import {KnexDatabase} from "./KnexDatabase.ts";
-import {Initializable} from "./ServiceLifecycle.ts";
+import {Employee} from "../../model/Employee.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../../model/Errors.ts";
+import {KnexDatabase} from "../KnexDatabase.ts";
+import {Initializable} from "../ServiceLifecycle.ts";
 
 export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL implements Initializable{
     constructor(dataBase: KnexDatabase) {

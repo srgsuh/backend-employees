@@ -1,5 +1,5 @@
 import "express";
-import {SearchObject} from "../src/service/EmployeeService.ts";
+import {SearchObject} from "../src/service/Employees/EmployeeService.ts";
 
 declare global {
   namespace Express {

@@ -1,5 +1,5 @@
-import {Employee} from "../model/Employee.ts";
-import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
+import {Employee} from "../../model/Employee.ts";
+import type EmployeeRequestParams from "../../model/EmployeeRequestParams.ts";
 
 export default interface EmployeeService {
     getEmployee(id: string): Promise<Employee>;

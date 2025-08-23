@@ -1,6 +1,6 @@
-import { Employee } from "../model/Employee.ts";
+import { Employee } from "../../model/Employee.ts";
 import EmployeeService from "./EmployeeService.ts";
-import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
+import type EmployeeRequestParams from "../../model/EmployeeRequestParams.ts";
 
 export class EmployeeServiceMock implements EmployeeService {
     async getEmployee(id: string): Promise<Employee> {

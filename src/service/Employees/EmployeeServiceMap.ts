@@ -1,11 +1,11 @@
-import type {Employee} from "../model/Employee.ts";
-import type EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
+import type {Employee} from "../../model/Employee.ts";
+import type EmployeeRequestParams from "../../model/EmployeeRequestParams.ts";
 import type EmployeeService from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
-import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import {StorageProvider} from "./StorageProvider.ts";
-import {Closable} from "./ServiceLifecycle.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../../model/Errors.ts";
+import {StorageProvider} from "../StorageProvider.ts";
+import {Closable} from "../ServiceLifecycle.ts";
 
 export class EmployeeServiceMap implements EmployeeService, Closable {
     private employees: Map<string, Employee> = new Map();

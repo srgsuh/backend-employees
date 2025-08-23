@@ -1,12 +1,12 @@
-import type LoginData from "../model/LoginData.ts";
-import type Account from "../model/Account.ts";
-import type LoginResponse from "../model/LoginResponse.ts";
+import type LoginData from "../../model/LoginData.ts";
+import type Account from "../../model/Account.ts";
+import type LoginResponse from "../../model/LoginResponse.ts";
 import type AccountingService from "./AccountingService.ts";
-import {AccountAlreadyExistsError, AuthenticationError} from "../model/Errors.ts";
+import {AccountAlreadyExistsError, AuthenticationError} from "../../model/Errors.ts";
 import {compareSync} from "bcryptjs";
-import JWTUtils from "../security/JWTUtils.ts";
-import {StorageProvider} from "./StorageProvider.ts";
-import {Closable} from "./ServiceLifecycle.ts";
+import JWTUtils from "../../security/JWTUtils.ts";
+import {StorageProvider} from "../StorageProvider.ts";
+import {Closable} from "../ServiceLifecycle.ts";
 
 export class AccountingServiceMap implements AccountingService, Closable{
     private accounts: Map<string, Account> = new Map();

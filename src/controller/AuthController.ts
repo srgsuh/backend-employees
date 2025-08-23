@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import type AccountingService from "../service/AccountingService.ts";
+import type AccountingService from "../service/Accounting/AccountingService.ts";
 
 
 export class AuthController {

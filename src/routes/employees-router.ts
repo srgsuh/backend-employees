@@ -5,7 +5,7 @@ import { parseGetQuery } from "../middleware/parseGetQuery.ts";
 import { validateBody } from "../middleware/validateBody.ts";
 import { employeeSchemaAdd, employeeSchemaUpdate } from "../schemas/employees.schema.ts";
 import {ADMIN_ROLES, ROLES} from "../model/config-values.ts";
-import { employeeService } from "../service/bootstrap.ts";
+import { employeeService } from "../bootstrap.ts";
 
 const employeeController = new EmployeeController(employeeService);
 

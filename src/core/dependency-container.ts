@@ -1,23 +1,23 @@
-import {DIContainer} from "./DIContainer.ts";
-import {StorageProvider} from "./StorageProvider.ts";
+import {DIContainer} from "./di/DIContainer.ts";
+import {StorageProvider} from "../service/StorageProvider.ts";
 import {Employee} from "../model/Employee.ts";
-import {FileStorage} from "./FileStorage.ts";
+import {FileStorage} from "../service/FileStorage.ts";
 import {ZodType} from "zod";
 import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
-import EmployeeService from "./EmployeeService.ts";
-import {EmployeeServiceMock} from "./EmployeeServiceMock.test.ts";
-import {EmployeeServiceMap} from "./EmployeeServiceMap.ts";
+import EmployeeService from "../service/Employees/EmployeeService.ts";
+import {EmployeeServiceMock} from "../service/Employees/EmployeeServiceMock.test.ts";
+import {EmployeeServiceMap} from "../service/Employees/EmployeeServiceMap.ts";
 import type Account from "../model/Account.ts";
-import AccountingService from "./AccountingService.ts";
-import {AccountingServiceMock} from "./AccountingServiceMock.test.ts";
-import {AccountingServiceMap} from "./AccountingServiceMap.ts";
+import AccountingService from "../service/Accounting/AccountingService.ts";
+import {AccountingServiceMock} from "../service/Accounting/AccountingServiceMock.test.ts";
+import {AccountingServiceMap} from "../service/Accounting/AccountingServiceMap.ts";
 import {accountSchema} from "../schemas/account.schema.ts";
 import {Knex} from "knex";
 import {configBetterSQLite3, configSQLite3} from "./db.config.ts";
-import {KnexDatabase} from "./KnexDatabase.ts";
-import {EmployeeServiceSQLite} from "./EmployeeServiceSQLite.ts";
+import {KnexDatabase} from "../service/KnexDatabase.ts";
+import {EmployeeServiceSQLite} from "../service/Employees/EmployeeServiceSQLite.ts";
 
-const container = new DIContainer();
+export const container = new DIContainer();
 // Configuration, schemas, etc.
 container.register<ZodType<Employee, any>>("schema.employee",
     async ()=>employeeSchemaLoad
@@ -68,5 +68,3 @@ container.register<AccountingService>( AccountingServiceMap.name,
     async (c: DIContainer)=>new AccountingServiceMap(
         await c.resolve<StorageProvider<Account>>("storage.account"))
 );
-
-export default container;

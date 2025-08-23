@@ -1,4 +1,4 @@
-import {employeeService as service} from "../service/bootstrap.ts";
+import {employeeService as service} from "../bootstrap.ts";
 import {after, beforeEach, describe, it} from "node:test";
 import assert from 'node:assert/strict';
 import {
@@ -8,7 +8,7 @@ import {
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import _ from "lodash";
-import container from "../service/dependency-container.ts";
+import {container} from "../bootstrap.ts";
 
 const e1: Employee = {
     id: "1",

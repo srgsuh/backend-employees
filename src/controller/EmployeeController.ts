@@ -1,4 +1,4 @@
-import EmployeeService from "../service/EmployeeService.ts";
+import EmployeeService from "../service/Employees/EmployeeService.ts";
 import {Request, Response} from "express";
 
 export class EmployeeController {
