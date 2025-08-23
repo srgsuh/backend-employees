@@ -14,7 +14,7 @@ import {AccountingServiceMap} from "./AccountingServiceMap.ts";
 import {accountSchema} from "../schemas/account.schema.ts";
 import {Knex} from "knex";
 import {configBetterSQLite3, configSQLite3} from "./db.config.ts";
-import {createKnexDatabase} from "./createKnexDatabase.ts";
+import {KnexDatabase} from "./KnexDatabase.ts";
 import {EmployeeServiceSQLite} from "./EmployeeServiceSQLite.ts";
 
 const container = new DIContainer();
@@ -30,16 +30,21 @@ container.register<Knex.Config>( "better-sqlite3.config", async ()=>configBetter
 container.register<Knex.Config>( "sqlite3.config", async ()=>configSQLite3
 );
 // Loaders, DBs, etc.
-container.register<Knex>( "knex.database",
-    async (c)=>createKnexDatabase(
+container.register<KnexDatabase>( "better-sqlite3.database",
+    async (c)=>new KnexDatabase(
         await c.resolve<Knex.Config>("better-sqlite3.config")
+    )
+);
+container.register<KnexDatabase>( "sqlite3.database",
+    async (c)=>new KnexDatabase(
+        await c.resolve<Knex.Config>("sqlite3.config")
     )
 );
 container.register<StorageProvider<Employee>>("storage.employee",
     async (c: DIContainer)=>new FileStorage<Employee>(
         await c.resolve<ZodType<Employee, any>>("schema.employee"), process.env.EMPLOYEES_FILE_PATH)
 );
-container.register<StorageProvider<Account>>("storage.employee",
+container.register<StorageProvider<Account>>("storage.account",
     async (c: DIContainer)=>new FileStorage<Account>(
         await c.resolve<ZodType<Account, any>>("schema.account"), process.env.ACCOUNTS_FILE_PATH)
 );
@@ -54,7 +59,7 @@ container.register<EmployeeService>( EmployeeServiceMap.name,
 );
 container.register<EmployeeService>( EmployeeServiceSQLite.name,
     async (c: DIContainer)=>new EmployeeServiceSQLite(
-        await c.resolve<Knex>("knex.database"))
+        await c.resolve<KnexDatabase>("better-sqlite3.database"))
 );
 container.register<AccountingService>( AccountingServiceMock.name,
     async ()=>new AccountingServiceMock()

@@ -7,6 +7,7 @@ import {EmployeeAlreadyExistsError, EmployeeNotFoundError, QueryLimitExceededErr
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {getEnvIntVariable} from "../utils/env-utils.ts";
+import {KnexDatabase} from "./KnexDatabase.js";
 
 const ROWS_LIMIT = 1000;
 const rowsLimit = getEnvIntVariable("ROWS_LIMIT", ROWS_LIMIT);
@@ -30,10 +31,10 @@ const parameterMapper: Record<keyof EmployeeRequestParams, WhereClauseParameters
 }
 
 export default abstract class AbstractEmployeeServiceSQL implements EmployeeService, Persistable {
-    protected readonly db: Knex;
+    protected constructor(private _db: KnexDatabase) {}
 
-    protected constructor(config: Knex.Config) {
-        this.db = knex(config);
+    protected get db() {
+        return this._db.dataBase;
     }
 
     async createTable() {

@@ -3,10 +3,12 @@ import {Knex} from "knex";
 import {employeeServiceRegistry} from "./registry.ts";
 import {Employee} from "../model/Employee.ts";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
+import {KnexDatabase} from "./KnexDatabase.js";
+import {configBetterSQLite3} from "./db.config.js";
 
 export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
-    constructor(config: Knex.Config) {
-        super(config);
+    constructor(dataBase: KnexDatabase) {
+        super(dataBase);
     }
 
     async addEmployee(employee: Employee): Promise<Employee> {
@@ -34,13 +36,9 @@ export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
 employeeServiceRegistry.registerService(
     EmployeeServiceSQLite.name,
     async () => {
-        const service: AbstractEmployeeServiceSQL = new EmployeeServiceSQLite({
-            client: "better-sqlite3",
-            connection: {
-                filename: process.env.SQLITE_FILE_NAME ?? "db.sqlite"
-            },
-            useNullAsDefault: true,
-        });
+        const service: AbstractEmployeeServiceSQL = new EmployeeServiceSQLite(
+            new KnexDatabase(configBetterSQLite3)
+        );
         await service.createTable();
         return service;
     }
