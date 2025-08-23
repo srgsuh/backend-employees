@@ -1,9 +1,9 @@
 import knex, {Knex} from "knex";
-import { Employee } from "../model/Employee.ts";
+import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import type EmployeeService from "./EmployeeService.ts";
 import Persistable from "./Persistable.ts";
-import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
+import {EmployeeAlreadyExistsError, EmployeeNotFoundError, QueryLimitExceededError} from "../model/Errors.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {getEnvIntVariable} from "../utils/env-utils.ts";
@@ -49,13 +49,12 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
         }
     }
 
-    async getAll(options?: EmployeeRequestParams) {
-        const query = this.db.table<Employee>(TABLE_NAME);
-        query.limit(this.maxRows);
-        if (options) {
-            this._buildWhereClause(query, options);
+    async getAll(options: EmployeeRequestParams = {}) {
+        const count = await this._count(options);
+        if(count > this.maxRows) {
+            throw new QueryLimitExceededError(count, this.maxRows);
         }
-        return query;
+       return await this._getAll(options);
     }
 
     async getEmployee(id: string): Promise<Employee> {
@@ -71,7 +70,7 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
         if (!id) {
             id = this._generateId();
         }
-        else if (await this._findById(id)) {
+        else if (await this._isIdExists(id)) {
             throw new EmployeeAlreadyExistsError(id);
         }
         const newEmployee: Employee = {...employee, id};
@@ -81,13 +80,13 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
 
     async deleteEmployee(id: string): Promise<Employee> {
         const e = await this.getEmployee(id);
-        await this.db(TABLE_NAME).del().where({id});
+        await this.db(TABLE_NAME).where({id}).del();
         return e;
     }
 
     async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
         const e = await this.getEmployee(id);
-        await this.db(TABLE_NAME).update(fields).where({id});
+        await this.db(TABLE_NAME).where({id}).update(fields);
         return {...e, ...fields};
     }
 
@@ -97,6 +96,19 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
 
     get maxRows(): number {
         return rowsLimit;
+    }
+
+    private async _getAll(options: EmployeeRequestParams) {
+        const query = this.db.table<Employee>(TABLE_NAME);
+        this._buildWhereClause(query, options);
+        return await query;
+    }
+
+    protected async _count(options: EmployeeRequestParams): Promise<number> {
+        const query = this.db.table(TABLE_NAME).count<{"count": number}[]>({count: "id"});
+        this._buildWhereClause(query, options);
+        const count =  await query;
+        return count[0].count;
     }
 
     protected _buildWhereClause(query: Knex.QueryBuilder, options: EmployeeRequestParams): void {
@@ -111,6 +123,10 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     protected async _findById(id: string) {
         const query = this.db.select<Employee>().from(TABLE_NAME).where({id});
         return query.first();
+    }
+
+    protected async _isIdExists(id: string): Promise<boolean> {
+        return (await this._findById(id)) !== undefined;
     }
 
     protected _generateId(): string {
