@@ -1,14 +1,17 @@
 import AbstractEmployeeServiceSQL, {TABLE_NAME} from "./AbstractEmployeeServiceSQL.ts";
-import {Knex} from "knex";
-import {employeeServiceRegistry} from "./registry.ts";
 import {Employee} from "../model/Employee.ts";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import {KnexDatabase} from "./KnexDatabase.js";
-import {configBetterSQLite3} from "./db.config.js";
+import {KnexDatabase} from "./KnexDatabase.ts";
+import {Initializable} from "./ServiceLifecycle.ts";
 
-export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
+export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL implements Initializable{
     constructor(dataBase: KnexDatabase) {
         super(dataBase);
+    }
+
+    async onInitialize(): Promise<void> {
+        await this.createTable();
+        console.log(`EmployeeServiceSQLite: service is initialized`);
     }
 
     async addEmployee(employee: Employee): Promise<Employee> {
@@ -25,21 +28,10 @@ export class EmployeeServiceSQLite extends AbstractEmployeeServiceSQL{
 
     async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
         const employees = await this.db(TABLE_NAME)
-            .update(fields).where({id}).returning<Employee[]>("*");
+            .where({id}).update(fields).returning<Employee[]>("*");
         if (employees.length === 0) {
             throw new EmployeeNotFoundError(id);
         }
         return employees[0];
     }
 }
-
-employeeServiceRegistry.registerService(
-    EmployeeServiceSQLite.name,
-    async () => {
-        const service: AbstractEmployeeServiceSQL = new EmployeeServiceSQLite(
-            new KnexDatabase(configBetterSQLite3)
-        );
-        await service.createTable();
-        return service;
-    }
-);

@@ -5,13 +5,10 @@ import type AccountingService from "./AccountingService.ts";
 import {AccountAlreadyExistsError, AuthenticationError} from "../model/Errors.ts";
 import {compareSync} from "bcryptjs";
 import JWTUtils from "../security/JWTUtils.ts";
-import Persistable from "./Persistable.ts";
 import {StorageProvider} from "./StorageProvider.ts";
-import {accountingServiceRegistry} from "./registry.ts";
-import {FileStorage} from "./FileStorage.ts";
-import {accountSchema} from "../schemas/account.schema.ts";
+import {Closable} from "./ServiceLifecycle.ts";
 
-export class AccountingServiceMap implements AccountingService, Persistable{
+export class AccountingServiceMap implements AccountingService, Closable{
     private accounts: Map<string, Account> = new Map();
 
     constructor(private readonly storage: StorageProvider<Account>) {
@@ -40,22 +37,14 @@ export class AccountingServiceMap implements AccountingService, Persistable{
         this.accounts.set(username, account);
     }
 
-    async save(): Promise<void> {
+    async onClose(): Promise<void> {
         const accounts = [...this.accounts.values()];
         this.storage.save(accounts);
-        console.log(`${accounts.length} accounts saved to file`);
+        console.log(`AccountingServiceMap: ${accounts.length} accounts saved to file`);
     }
 
-    load() {
+    private load() {
         this.storage.load((a) => this.addAccount(a));
-        console.log(`${this.accounts.size} accounts loaded from DB file`);
+        console.log(`AccountingServiceMap: ${this.accounts.size} accounts loaded from DB file`);
     }
 }
-
-accountingServiceRegistry.registerService(
-    AccountingServiceMap.name,
-    async () =>
-        new AccountingServiceMap(
-            new FileStorage<Account>(accountSchema, process.env.ACCOUNTS_FILE_PATH)
-        )
-);

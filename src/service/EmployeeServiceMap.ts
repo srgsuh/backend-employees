@@ -4,13 +4,10 @@ import type EmployeeService from "./EmployeeService.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../model/Errors.ts";
-import type Persistable from "./Persistable.ts";
 import {StorageProvider} from "./StorageProvider.ts";
-import {employeeServiceRegistry} from "./registry.ts";
-import {FileStorage} from "./FileStorage.ts";
-import {employeeSchemaLoad} from "../schemas/employees.schema.ts";
+import {Closable} from "./ServiceLifecycle.ts";
 
-export class EmployeeServiceMap implements EmployeeService, Persistable {
+export class EmployeeServiceMap implements EmployeeService, Closable {
     private employees: Map<string, Employee> = new Map();
 
     constructor(private storage: StorageProvider<Employee>) {
@@ -84,21 +81,13 @@ export class EmployeeServiceMap implements EmployeeService, Persistable {
         return data.filter(filter);
     }
 
-    async save(): Promise<void> {
+    async onClose(): Promise<void> {
         this.storage.save(await this.getAll());
-        console.log(`${this.employees.size} entities saved to DB file`);
+        console.log(`EmployeeServiceMap: ${this.employees.size} entities saved to DB file`);
     }
 
-    load() {
+    private load() {
         this.storage.load((e) => this.addEmployee(e));
-        console.log(`${this.employees.size} entities loaded from DB file`);
+        console.log(`EmployeeServiceMap: ${this.employees.size} entities loaded from DB file`);
     }
 }
-
-employeeServiceRegistry.registerService(
-    EmployeeServiceMap.name,
-    async () => {
-    return new EmployeeServiceMap(
-        new FileStorage(employeeSchemaLoad, process.env.DB_FILE_PATH)
-    )
-})

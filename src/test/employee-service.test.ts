@@ -8,7 +8,7 @@ import {
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import _ from "lodash";
-import {isPersistable} from "../service/Persistable.js";
+import container from "../service/dependency-container.ts";
 
 const e1: Employee = {
     id: "1",
@@ -61,9 +61,7 @@ const newEmployee = {
 }
 
 after(async () => {
-    if (isPersistable(service)) {
-        await service.save();
-    }
+    await container.close();
 });
 
 beforeEach(async () => {

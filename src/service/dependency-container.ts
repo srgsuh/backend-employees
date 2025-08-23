@@ -69,5 +69,4 @@ container.register<AccountingService>( AccountingServiceMap.name,
         await c.resolve<StorageProvider<Account>>("storage.account"))
 );
 
-const employeeService = await container.resolve<EmployeeService>(process.env.EMPLOYEE_SERVICE!);
-const accountingService = await container.resolve<AccountingService>(process.env.ACCOUNTING_SERVICE!);
+export default container;

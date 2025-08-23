@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import app from './app.ts';
 import { getEnvIntVariable } from './utils/env-utils.ts';
-import { getPersistableServices } from './service/bootstrap.ts';
+import container from "./service/dependency-container.ts";
 
 const DEFAULT_PORT = 3000;
 const port = getEnvIntVariable("PORT", DEFAULT_PORT);
@@ -14,10 +14,9 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 async function shutdown() {
-    server.close(() => {
+    server.close(async () => {
         console.log("Server closed");
-        getPersistableServices().forEach(
-            (service) => {service.save();}
-        );
+        await container.close();
+        console.log("All dependencies closed");
     });
 }

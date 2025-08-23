@@ -1,7 +1,7 @@
 import knex, {Knex} from "knex";
-import {Closeable} from "./ServiceLifecycle.ts";
+import {Closable} from "./ServiceLifecycle.ts";
 
-export class KnexDatabase implements Closeable {
+export class KnexDatabase implements Closable {
     private readonly _dataBase: Knex;
     constructor(config: Knex.Config) {
         this._dataBase = knex(config);
@@ -11,7 +11,8 @@ export class KnexDatabase implements Closeable {
         return this._dataBase;
     }
 
-    async close(): Promise<void> {
+    async onClose(): Promise<void> {
         await this._dataBase.destroy();
+        console.log("KnexDatabase: Database connection closed");
     }
 }

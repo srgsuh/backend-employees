@@ -1,13 +1,12 @@
-import knex, {Knex} from "knex";
+import {Knex} from "knex";
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
 import type EmployeeService from "./EmployeeService.ts";
-import Persistable from "./Persistable.ts";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError, QueryLimitExceededError} from "../model/Errors.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {getEnvIntVariable} from "../utils/env-utils.ts";
-import {KnexDatabase} from "./KnexDatabase.js";
+import {KnexDatabase} from "./KnexDatabase.ts";
 
 const ROWS_LIMIT = 1000;
 const rowsLimit = getEnvIntVariable("ROWS_LIMIT", ROWS_LIMIT);
@@ -30,8 +29,8 @@ const parameterMapper: Record<keyof EmployeeRequestParams, WhereClauseParameters
     birthDate_lte: {column: cBirthDate, operator: "<="},
 }
 
-export default abstract class AbstractEmployeeServiceSQL implements EmployeeService, Persistable {
-    protected constructor(private _db: KnexDatabase) {}
+export default abstract class AbstractEmployeeServiceSQL implements EmployeeService {
+    protected constructor(private readonly _db: KnexDatabase) {}
 
     protected get db() {
         return this._db.dataBase;

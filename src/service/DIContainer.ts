@@ -1,4 +1,4 @@
-import {Closeable, isCloseable, isInitializable} from "./ServiceLifecycle.ts";
+import {Closable, isCloseable, isInitializable} from "./ServiceLifecycle.ts";
 
 type FactoryMethod<T> = (c: DIContainer) => Promise<T>;
 type FactoryType = "singleton" | "transient";
@@ -11,7 +11,7 @@ interface ServiceRegistration<T> {
 
 export class DIContainer {
     services: Map<string, ServiceRegistration<unknown>> = new Map();
-    closable: Closeable[] = [];
+    closable: Closable[] = [];
 
     register<T>(key: string, factoryMethod: FactoryMethod<T>, type: FactoryType = "singleton"): void {
         if (this.services.has(type)) {
@@ -34,11 +34,12 @@ export class DIContainer {
             instance = registration.instance;
         }
         else {
-            instance = registration.factory(this);
+            instance = await registration.factory(this);
             if (isInitializable(instance)) {
-                await instance.init();
+                await instance.onInitialize()
             }
             if (isCloseable(instance)) {
+                console.log(`DIContainer: ${key} is closable: ${instance.constructor.name}`);
                 this.closable.push(instance);
             }
             if (registration.type === "singleton") {
@@ -50,7 +51,7 @@ export class DIContainer {
 
     async close(): Promise<void> {
         for (const c of this.closable.reverse()) {
-            await c.close();
+            await c.onClose();
         }
     }
 }
