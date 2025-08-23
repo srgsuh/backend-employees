@@ -3,7 +3,7 @@ import {after, beforeEach, describe, it} from "node:test";
 import assert from 'node:assert/strict';
 import {
     EmployeeAlreadyExistsError,
-    EmployeeNotFoundError,
+    EmployeeNotFoundError, QueryLimitExceededError,
 } from "../model/Errors.ts";
 import {Employee} from "../model/Employee.ts";
 import EmployeeRequestParams from "../model/EmployeeRequestParams.ts";
@@ -191,6 +191,22 @@ describe(
 });
 
 describe("Test getAll with filters", async () => {
+    await it("No filters -> return all employees", async () => {
+        const provided = await service.getAll();
+        compareArrays(provided, dbArray);
+    });
+    await it("If result set is too big -> throw QueryLimitExceededError", async () => {
+        for (const e of dbArray) {
+            await service.addEmployee(_.omit(e, "id"));
+        }
+        await assert.rejects(
+            service.getAll(),
+            QueryLimitExceededError,
+        );
+        for (const e of dbArray) {
+            await service.deleteEmployee(e.id!);
+        }
+    })
     await it("Filter by department", async () => {
         const department = "IT";
         const options: EmployeeRequestParams = {department};
