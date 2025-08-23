@@ -4,14 +4,17 @@ import LoginResponse from "../../model/LoginResponse.ts";
 import {KnexDatabase} from "../KnexDatabase.ts";
 import Account from "../../model/Account.ts";
 import {AccountAlreadyExistsError, AuthenticationError} from "../../model/Errors.ts";
-import {hash, compare} from "bcryptjs";
 import JWTUtils from "../../security/JWTUtils.ts";
-import {Initializable} from "../ServiceLifecycle.js";
+import {Initializable} from "../ServiceLifecycle.ts";
+import HashProvider from "../../security/HashProvider.ts";
 
 const accountTable = "accounts";
 
 export class AccountingServiceSQL implements AccountingService, Initializable {
-    constructor(private readonly _db: KnexDatabase) {}
+    constructor(
+        private readonly _db: KnexDatabase,
+        private readonly hashing: HashProvider,
+    ) {}
 
     async createTable() {
         const isExists = await this.db.schema.hasTable(accountTable);
@@ -24,11 +27,9 @@ export class AccountingServiceSQL implements AccountingService, Initializable {
     }
 
     async login(loginData: LoginData): Promise<LoginResponse> {
-        console.log(`AccountingServiceSQL: login for ${JSON.stringify(loginData)}`);
         const account = await this._get(loginData.email);
-        console.log(`AccountingServiceSQL: account ${JSON.stringify(account)}`);
-        const compareOk = account && await compare(loginData.password, account.password);
-        console.log(`AccountingServiceSQL: compare ${compareOk}`);
+        const compareOk = account &&
+            await this.hashing.compare(loginData.password, account.password);
         if (!compareOk) {
             throw new AuthenticationError("Wrong credentials");
         }
@@ -47,7 +48,7 @@ export class AccountingServiceSQL implements AccountingService, Initializable {
             throw new AccountAlreadyExistsError(loginData.email);
         }
         const username = loginData.email;
-        const password = await hash(loginData.password, 10);
+        const password = await this.hashing.hash(loginData.password);
         await this.db(accountTable).insert({username, password, role: "USER"});
     }
 

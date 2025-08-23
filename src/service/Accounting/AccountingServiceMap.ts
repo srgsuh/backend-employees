@@ -3,21 +3,25 @@ import type Account from "../../model/Account.ts";
 import type LoginResponse from "../../model/LoginResponse.ts";
 import type AccountingService from "./AccountingService.ts";
 import {AccountAlreadyExistsError, AuthenticationError} from "../../model/Errors.ts";
-import {compare, hash} from "bcryptjs";
 import JWTUtils from "../../security/JWTUtils.ts";
 import {StorageProvider} from "../StorageProvider.ts";
 import {Closable} from "../ServiceLifecycle.ts";
+import HashProvider from "../../security/HashProvider.ts";
 
 export class AccountingServiceMap implements AccountingService, Closable{
     private accounts: Map<string, Account> = new Map();
 
-    constructor(private readonly storage: StorageProvider<Account>) {
+    constructor(
+        private readonly storage: StorageProvider<Account>,
+        private readonly hashing: HashProvider,
+    ) {
         this.load();
     }
 
     async login(loginData: LoginData): Promise<LoginResponse> {
         const account = this.accounts.get(loginData.email);
-        const compareOk = account && await compare(loginData.password, account.password);
+        const compareOk = account &&
+            await this.hashing.compare(loginData.password, account.password);
         if (!compareOk) {
             throw new AuthenticationError("Wrong credentials");
         }
@@ -35,7 +39,7 @@ export class AccountingServiceMap implements AccountingService, Closable{
         if (this.accounts.has(username)) {
             throw new AccountAlreadyExistsError(username);
         }
-        const password = await hash(loginData.password, 10);
+        const password = await this.hashing.hash(loginData.password);
         const account: Account = {
             username,
             password,
