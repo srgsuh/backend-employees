@@ -4,7 +4,7 @@ import type AccountingService from "../service/Accounting/AccountingService.ts";
 
 export class AuthController {
     constructor(private readonly accountingService: AccountingService) {}
-    login = (req: Request, res: Response): void => {
-        res.json(this.accountingService.login(req.body));
+    login = async (req: Request, res: Response): Promise<void> => {
+        res.json(await this.accountingService.login(req.body));
     }
 }

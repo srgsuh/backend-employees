@@ -4,7 +4,10 @@ import type AccountingService from './AccountingService.ts';
 
 
 export class AccountingServiceMock implements AccountingService {
-    login(_: LoginData): LoginResponse {
+    async addAccount(loginData: LoginData): Promise<void> {
+        return;
+    }
+    async login(_: LoginData): Promise<LoginResponse> {
         return {} as LoginResponse;
     }
 }

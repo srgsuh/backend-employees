@@ -16,6 +16,7 @@ import {Knex} from "knex";
 import {configBetterSQLite3, configSQLite3} from "./db.config.ts";
 import {KnexDatabase} from "../service/KnexDatabase.ts";
 import {EmployeeServiceSQLite} from "../service/Employees/EmployeeServiceSQLite.ts";
+import {AccountingServiceSQL} from "../service/Accounting/AccountingServiceSQL.js";
 
 export const container = new DIContainer();
 // Configuration, schemas, etc.
@@ -67,4 +68,9 @@ container.register<AccountingService>( AccountingServiceMock.name,
 container.register<AccountingService>( AccountingServiceMap.name,
     async (c: DIContainer)=>new AccountingServiceMap(
         await c.resolve<StorageProvider<Account>>("storage.account"))
+);
+container.register<AccountingService>( AccountingServiceSQL.name,
+    async (c: DIContainer)=>new AccountingServiceSQL(
+        await c.resolve<KnexDatabase>("better-sqlite3.database")
+    )
 );

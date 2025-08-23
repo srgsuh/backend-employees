@@ -103,8 +103,8 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     protected async _count(options: EmployeeRequestParams): Promise<number> {
         const query = this.db.table(TABLE_NAME).count<{"count": number}[]>({count: "id"});
         this._buildWhereClause(query, options);
-        const count =  await query;
-        return count[0].count;
+        const result =  await query;
+        return result[0].count;
     }
 
     protected _buildWhereClause(query: Knex.QueryBuilder, options: EmployeeRequestParams): void {
