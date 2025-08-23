@@ -90,10 +90,6 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
         return {...e, ...fields};
     }
 
-    async save(): Promise<void> {
-        await this.db.destroy();
-    }
-
     get maxRows(): number {
         return rowsLimit;
     }

@@ -39,7 +39,6 @@ export class DIContainer {
                 await instance.onInitialize()
             }
             if (isCloseable(instance)) {
-                console.log(`DIContainer: ${key} is closable: ${instance.constructor.name}`);
                 this.closable.push(instance);
             }
             if (registration.type === "singleton") {
