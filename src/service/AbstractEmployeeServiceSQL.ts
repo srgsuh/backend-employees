@@ -101,7 +101,7 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     private async _getAll(options: EmployeeRequestParams) {
         const query = this.db.table<Employee>(TABLE_NAME);
         this._buildWhereClause(query, options);
-        return await query;
+        return query;
     }
 
     protected async _count(options: EmployeeRequestParams): Promise<number> {
