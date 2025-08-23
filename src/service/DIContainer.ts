@@ -1,6 +1,6 @@
-import {Closeable, isCloseable, isInitializable} from "./ServiceLifecycle.js";
+import {Closeable, isCloseable, isInitializable} from "./ServiceLifecycle.ts";
 
-type FactoryMethod<T> = (c: DIContainer) => T;
+type FactoryMethod<T> = (c: DIContainer) => Promise<T>;
 type FactoryType = "singleton" | "transient";
 
 interface ServiceRegistration<T> {
