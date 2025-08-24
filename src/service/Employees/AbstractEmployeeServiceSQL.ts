@@ -19,9 +19,16 @@ const cBirthDate: keyof Employee = "birthDate";
 const cSalary: keyof Employee = "salary";
 const cAvatar: keyof Employee = "avatar";
 
+const columns = [cId, cFullName, cDepartment, cBirthDate, cSalary, cAvatar];
+
+type WhereOptions = Omit<EmployeeRequestParams, "order_by">;
+type OrderByOptions = Pick<EmployeeRequestParams, "order_by">;
+const splitOptions = (eo: EmployeeRequestParams)=>{
+    return {whereOptions: _.omit(eo, "order_by"), orderByOptions: _.pick(eo, "order_by")};
+}
 type Operators = "<=" | ">=" | "=";
-type WhereClauseParameters = {column: string, operator: Operators};
-const parameterMapper: Record<keyof EmployeeRequestParams, WhereClauseParameters> = {
+type WhereClauseData = {column: string, operator: Operators};
+const parameterMapper: Record<keyof WhereOptions, WhereClauseData> = {
     department: {column: cDepartment, operator: "="},
     salary_gte: {column: cSalary, operator: ">="},
     salary_lte: {column: cSalary, operator: "<="},
@@ -66,15 +73,12 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     }
 
     async addEmployee(employee: Employee): Promise<Employee> {
-        let id = employee.id;
-        if (!id) {
-            id = this._generateId();
+        const newEmployee = employee.id? employee: {...employee, id: this._generateId()};
+        try {
+            await this.db(TABLE_NAME).insert(newEmployee);
+        } catch (e) {
+            throw new EmployeeAlreadyExistsError(newEmployee.id!);
         }
-        else if (await this._isIdExists(id)) {
-            throw new EmployeeAlreadyExistsError(id);
-        }
-        const newEmployee: Employee = {...employee, id};
-        await this.db(TABLE_NAME).insert(newEmployee);
         return newEmployee;
     }
 
@@ -85,9 +89,11 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     }
 
     async updateEmployee(id: string, fields: Partial<Employee>): Promise<Employee> {
-        const e = await this.getEmployee(id);
-        await this.db(TABLE_NAME).where({id}).update(fields);
-        return {...e, ...fields};
+        const res = await this.db(TABLE_NAME).where({id}).update(fields);
+        if (res === 0) {
+            throw new EmployeeNotFoundError(id);
+        }
+        return this.getEmployee(id);
     }
 
     get maxRows(): number {
@@ -96,24 +102,50 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
 
     private async _getAll(options: EmployeeRequestParams) {
         const query = this.db.table<Employee>(TABLE_NAME);
-        this._buildWhereClause(query, options);
+        this._buildRequestCriteria(query, options);
         return query;
     }
 
     protected async _count(options: EmployeeRequestParams): Promise<number> {
         const query = this.db.table(TABLE_NAME).count<{"count": number}[]>({count: "id"});
-        this._buildWhereClause(query, options);
+        this._buildWhereClause(query, splitOptions(options).whereOptions);
         const result =  await query;
         return result[0].count;
     }
 
-    protected _buildWhereClause(query: Knex.QueryBuilder, options: EmployeeRequestParams): void {
+    protected _buildRequestCriteria(query: Knex.QueryBuilder, options: EmployeeRequestParams): void {
+        const {whereOptions, orderByOptions} = splitOptions(options);
+        this._buildWhereClause(query, whereOptions);
+        this._buildOrderByClause(query, orderByOptions);
+    }
+
+    protected _buildWhereClause(query: Knex.QueryBuilder, options: WhereOptions): void {
         _.toPairs(options)
-            .map(([key, value]) =>
-                [parameterMapper[key as keyof EmployeeRequestParams], value])
+            .map(([key, value]):[WhereClauseData, string | number] =>
+                [parameterMapper[key as keyof WhereOptions], value])
             .forEach(([mapped, value]) => {
                 query.where(mapped.column, mapped.operator, value);
             })
+        query.orderBy(cId);
+    }
+
+    protected _buildOrderByClause(query: Knex.QueryBuilder, {order_by}: OrderByOptions): void {
+        order_by?.split(",")
+            .map(s=> this._splitOrderInstruction(s.trim()))
+            .filter(o => columns.includes(o.column as keyof Employee))
+            .forEach(o => {
+                query.orderBy(o.column, o.direction);
+            });
+    }
+
+    protected _splitOrderInstruction(order: string): { column: string, direction: "asc" | "desc" } {
+        if (order.startsWith("-") || order.startsWith("+")) {
+            return {
+                column: order.substring(1),
+                direction: order[0] === "-"? "desc": "asc"
+            };
+        }
+        return {column: order, direction: "asc"};
     }
 
     protected async _findById(id: string) {

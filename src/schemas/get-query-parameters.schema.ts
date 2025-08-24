@@ -6,4 +6,5 @@ export const searchRequestSchema = z.strictObject({
     salary_lte: z.coerce.number().optional(),
     birthDate_gte: z.iso.date().optional(),
     birthDate_lte: z.iso.date().optional(),
+    order_by: z.string().min(1).optional(),
 });
