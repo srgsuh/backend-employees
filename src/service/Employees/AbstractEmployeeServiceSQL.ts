@@ -52,6 +52,9 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
                 table.string(cBirthDate);
                 table.integer(cSalary);
                 table.string(cAvatar).defaultTo("");
+                table.index([cDepartment]);
+                table.index([cBirthDate]);
+                table.index([cSalary]);
             });
         }
     }
