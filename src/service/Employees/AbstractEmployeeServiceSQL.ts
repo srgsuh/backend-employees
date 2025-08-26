@@ -1,12 +1,14 @@
 import {Knex} from "knex";
 import {Employee} from "../../model/Employee.ts";
-import EmployeeRequestParams from "../../model/EmployeeRequestParams.ts";
+import type EmployeeRequestParams from "../../model/EmployeeRequestParams.ts";
+import type {WhereOptions, OrderByOptions} from "../../model/EmployeeRequestParams.ts";
 import type EmployeeService from "./EmployeeService.ts";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError, QueryLimitExceededError} from "../../model/Errors.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
 import {getEnvIntVariable} from "../../utils/env-utils.ts";
 import {KnexDatabase} from "../KnexDatabase.ts";
+import {splitOptions} from "../../utils/request-param-utils.ts";
 
 const ROWS_LIMIT = 1000;
 const rowsLimit = getEnvIntVariable("ROWS_LIMIT", ROWS_LIMIT);
@@ -21,11 +23,6 @@ const cAvatar: keyof Employee = "avatar";
 
 const columns = [cId, cFullName, cDepartment, cBirthDate, cSalary, cAvatar];
 
-type WhereOptions = Omit<EmployeeRequestParams, "order_by">;
-type OrderByOptions = Pick<EmployeeRequestParams, "order_by">;
-const splitOptions = (eo: EmployeeRequestParams)=>{
-    return {whereOptions: _.omit(eo, "order_by"), orderByOptions: _.pick(eo, "order_by")};
-}
 type Operators = "<=" | ">=" | "=";
 type WhereClauseData = {column: string, operator: Operators};
 const parameterMapper: Record<keyof WhereOptions, WhereClauseData> = {
@@ -154,10 +151,6 @@ export default abstract class AbstractEmployeeServiceSQL implements EmployeeServ
     protected async _findById(id: string) {
         const query = this.db.select<Employee>().from(TABLE_NAME).where({id});
         return query.first();
-    }
-
-    protected async _isIdExists(id: string): Promise<boolean> {
-        return (await this._findById(id)) !== undefined;
     }
 
     protected _generateId(): string {

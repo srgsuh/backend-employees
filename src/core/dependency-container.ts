@@ -19,6 +19,7 @@ import {EmployeeServiceSQLite} from "../service/Employees/EmployeeServiceSQLite.
 import {AccountingServiceSQL} from "../service/Accounting/AccountingServiceSQL.ts";
 import HashProvider from "../security/HashProvider.ts";
 import {BcryptHash} from "../security/BcryptHash.ts";
+import {EmployeeServiceMongoInMemory} from "../service/Employees/EmployeeServiceMongoInMemory.ts";
 
 export const container = new DIContainer();
 
@@ -84,3 +85,6 @@ container.register<AccountingService>( AccountingServiceSQL.name,
         await c.resolve<KnexDatabase>("better-sqlite3.database"),
         await c.resolve<HashProvider>("bcrypt")
 ));
+container.register<EmployeeService>(EmployeeServiceMongoInMemory.name,
+    async (c: DIContainer)=> new EmployeeServiceMongoInMemory
+);
