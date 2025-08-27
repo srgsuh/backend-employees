@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 export default interface EmployeeRequestParams {
     department?: string;
     salary_gte?: number;

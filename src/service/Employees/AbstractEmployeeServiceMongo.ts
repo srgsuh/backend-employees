@@ -1,6 +1,6 @@
 import { type Employee } from "../../model/Employee.ts";
 import type EmployeeService from "./EmployeeService.ts";
-import EmployeeRequestParams, {WhereOptions} from "../../model/EmployeeRequestParams.ts";
+import EmployeeRequestParams, {type OrderByOptions, WhereOptions} from "../../model/EmployeeRequestParams.ts";
 import {Collection, Db, MongoClient, MongoServerError} from "mongodb";
 import type {Filter} from "mongodb";
 import {Closable, Initializable} from "../ServiceLifecycle.ts";
@@ -43,8 +43,8 @@ export default abstract class AbstractEmployeeServiceMongo
     }
 
     async getAll(options: EmployeeRequestParams = {}): Promise<Employee[]> {
-        const filter = this.getFilter(options);
-        return this.collection.find(filter).project<Employee>({_id: 0}).toArray();
+        const {filter, order} = this._buildWhereAndOrderByClause(options);
+        return await this.collection.find(filter).project<Employee>({_id: 0}).sort(order).toArray();
     }
 
     async getEmployee(id: string): Promise<Employee> {
@@ -90,9 +90,15 @@ export default abstract class AbstractEmployeeServiceMongo
         return nextId();
     }
 
-    private getFilter(requestParams: EmployeeRequestParams): Filter<Employee> {
+    protected _buildWhereAndOrderByClause(requestParams: EmployeeRequestParams) {
+        const {whereOptions, orderByOptions} = splitOptions(requestParams);
+        const filter = this._getFilter(whereOptions);
+        const order = this._getSorting(orderByOptions);
+        return {filter, order};
+    }
+
+    protected _getFilter(whereOptions: WhereOptions): Filter<Employee> {
         let filter: Filter<Employee> = {};
-        const {whereOptions} = splitOptions(requestParams);
         if (!_.isEmpty(whereOptions)) {
             const partials: Filter<Employee>[] = _.toPairs(whereOptions).map(
                 ([key, value]) => {
@@ -102,6 +108,26 @@ export default abstract class AbstractEmployeeServiceMongo
             filter = (partials.length === 1)? partials[0]: {$and: partials};
         }
         return filter;
+    }
+
+    protected _getSorting({order_by}: OrderByOptions): Record<string, 1 | -1> {
+        let order: {[x: string]: 1 | -1} = {};
+        if (order_by) {
+            order = order_by.split(",")
+                .map(s => this._composeOrderByInstruction(s.trim()))
+                .reduce((acc, next) => ({...acc, ...next}), {})
+        }
+        return ("id" in order)? order: {...order, id: 1}; //always sort by id for deterministic results
+    }
+
+    protected _composeOrderByInstruction(order: string): { [x: string]: 1 | -1 } {
+        let column: string = order;
+        let direction: 1 | -1 = 1;
+        if (order.startsWith("-") || order.startsWith("+")) {
+            column = order.substring(1);
+            direction = order[0] === "-"? -1: 1;
+        }
+        return {[column]: direction};
     }
 }
 
