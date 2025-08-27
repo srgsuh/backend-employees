@@ -7,12 +7,9 @@ const COLLECTION_NAME = "employees";
 
 export class EmployeeServiceMongoInMemory extends AbstractEmployeeServiceMongo
     implements Initializable, Closable{
-    private mongoMemoryServer: MongoMemoryServer;
 
-    constructor() {
-        const server = new MongoMemoryServer();
-        super(server.getUri(), DB_NAME, COLLECTION_NAME);
-        this.mongoMemoryServer = server;
+    constructor(private memoryServer: MongoMemoryServer) {
+        super(memoryServer.getUri(), DB_NAME, COLLECTION_NAME);
     }
 
     async onInitialize(): Promise<void> {
@@ -21,6 +18,6 @@ export class EmployeeServiceMongoInMemory extends AbstractEmployeeServiceMongo
 
     async onClose(): Promise<void> {
         await super.onClose();
-        await this.mongoMemoryServer.stop();
+        await this.memoryServer.stop();
     }
 }

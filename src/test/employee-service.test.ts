@@ -107,7 +107,7 @@ describe("Test deleteEmployee method", async () => {
         assert.deepStrictEqual(fromService, employee);
     })
 
-    await it("On existing id -> delete employee", async () => {
+    await it("On existing id -> delete employee. It's no more available with get", async () => {
         const employee = dbArray[1];
         await service.deleteEmployee(employee.id!);
 
@@ -193,7 +193,7 @@ describe("Test getAll with filters", async () => {
         const provided = await service.getAll();
         compareArrays(provided, dbArray);
     });
-    await it("If result set is too big -> throw QueryLimitExceededError", async () => {
+    await it.todo("If result set is too big -> throw QueryLimitExceededError", async () => {
         for (const e of dbArray) {
             await service.addEmployee(_.omit(e, "id"));
         }

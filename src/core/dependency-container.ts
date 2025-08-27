@@ -20,6 +20,7 @@ import {AccountingServiceSQL} from "../service/Accounting/AccountingServiceSQL.t
 import HashProvider from "../security/HashProvider.ts";
 import {BcryptHash} from "../security/BcryptHash.ts";
 import {EmployeeServiceMongoInMemory} from "../service/Employees/EmployeeServiceMongoInMemory.ts";
+import {MongoMemoryServer} from "mongodb-memory-server";
 
 export const container = new DIContainer();
 
@@ -58,7 +59,9 @@ container.register<StorageProvider<Account>>("storage.account",
 );
 container.register<HashProvider>( "bcrypt", async ()=>new BcryptHash()
 );
-
+container.register<MongoMemoryServer>( "MongoMemoryServer", async ()=> {
+    return await MongoMemoryServer.create();
+});
 // Services
 
 container.register<EmployeeService>( EmployeeServiceMock.name,
@@ -86,5 +89,6 @@ container.register<AccountingService>( AccountingServiceSQL.name,
         await c.resolve<HashProvider>("bcrypt")
 ));
 container.register<EmployeeService>(EmployeeServiceMongoInMemory.name,
-    async (c: DIContainer)=> new EmployeeServiceMongoInMemory
+    async (c: DIContainer)=>
+        new EmployeeServiceMongoInMemory(await c.resolve<MongoMemoryServer>("MongoMemoryServer"))
 );
