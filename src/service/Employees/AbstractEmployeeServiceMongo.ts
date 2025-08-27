@@ -47,20 +47,6 @@ export default abstract class AbstractEmployeeServiceMongo
         return this.collection.find(filter).project<Employee>({_id: 0}).toArray();
     }
 
-    private getFilter(requestParams: EmployeeRequestParams): Filter<Employee> {
-       let filter: Filter<Employee> = {};
-       const {whereOptions} = splitOptions(requestParams);
-       if (!_.isEmpty(whereOptions)) {
-           const partials: Filter<Employee>[] = _.toPairs(whereOptions).map(
-               ([key, value]) => {
-                   const {field, op} = WhereMapper[key as keyof WhereOptions];
-                   return {[field]: {[op]: value}};
-               });
-           filter = (partials.length === 1)? partials[0]: {$and: partials};
-       }
-       return filter;
-    }
-
     async getEmployee(id: string): Promise<Employee> {
         const e = await this.collection.findOne<Employee>({id}, { projection: { _id: 0 }});
         if (!e) {
@@ -103,11 +89,22 @@ export default abstract class AbstractEmployeeServiceMongo
     private _genId(): string {
         return nextId();
     }
+
+    private getFilter(requestParams: EmployeeRequestParams): Filter<Employee> {
+        let filter: Filter<Employee> = {};
+        const {whereOptions} = splitOptions(requestParams);
+        if (!_.isEmpty(whereOptions)) {
+            const partials: Filter<Employee>[] = _.toPairs(whereOptions).map(
+                ([key, value]) => {
+                    const {field, op} = WhereMapper[key as keyof WhereOptions];
+                    return {[field]: {[op]: value}};
+                });
+            filter = (partials.length === 1)? partials[0]: {$and: partials};
+        }
+        return filter;
+    }
 }
 
 export function isDuplicateKeyError(err: unknown): err is MongoServerError {
-    return (
-        err instanceof MongoServerError &&
-        (err as MongoServerError).code === 11000
-    );
+    return (err instanceof MongoServerError && (err as MongoServerError).code === 11000);
 }

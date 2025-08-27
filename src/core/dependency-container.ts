@@ -59,9 +59,11 @@ container.register<StorageProvider<Account>>("storage.account",
 );
 container.register<HashProvider>( "bcrypt", async ()=>new BcryptHash()
 );
-container.register<MongoMemoryServer>( "MongoMemoryServer", async ()=> {
-    return await MongoMemoryServer.create();
-});
+container.register<MongoMemoryServer>(
+    "MongoMemoryServer",
+    async ()=> {return await MongoMemoryServer.create();},
+    "transient"
+);
 // Services
 
 container.register<EmployeeService>( EmployeeServiceMock.name,
