@@ -1,13 +1,13 @@
 import { type Employee } from "../../model/Employee.ts";
 import type EmployeeService from "./EmployeeService.ts";
 import EmployeeRequestParams, {WhereOptions} from "../../model/EmployeeRequestParams.ts";
-import {Collection, Db, MongoClient, MongoServerError, WithId} from "mongodb";
+import {Collection, Db, MongoClient, MongoServerError} from "mongodb";
 import type {Filter} from "mongodb";
 import {Closable, Initializable} from "../ServiceLifecycle.ts";
 import {EmployeeAlreadyExistsError, EmployeeNotFoundError} from "../../model/Errors.ts";
 import {v1 as nextId} from "uuid";
 import _ from "lodash";
-import {splitOptions} from "../../utils/request-param-utils.js";
+import {splitOptions} from "../../utils/request-param-utils.ts";
 
 type whereOp = "$gte" | "$lte" | "$eq";
 const WhereMapper: Record<keyof WhereOptions, {field: keyof Employee, op: whereOp}> = {
@@ -44,7 +44,6 @@ export default abstract class AbstractEmployeeServiceMongo
 
     async getAll(options: EmployeeRequestParams = {}): Promise<Employee[]> {
         const filter = this.getFilter(options);
-        console.log("getAll filter = ", JSON.stringify(filter, null, 2));
         return this.collection.find(filter).project<Employee>({_id: 0}).toArray();
     }
 
@@ -82,8 +81,7 @@ export default abstract class AbstractEmployeeServiceMongo
     }
 
     async deleteEmployee(id: string): Promise<Employee> {
-        const result = await this.collection
-            .findOneAndDelete({id}, { projection: { _id: 0 }});
+        const result = await this.collection.findOneAndDelete({id}, { projection: { _id: 0 }});
         if (!result) {
             throw new EmployeeNotFoundError(id);
         }
